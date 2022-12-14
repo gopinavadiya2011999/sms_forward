@@ -9,4 +9,5 @@ class ImageConstant {
   static String fromWho = "assets/png/from_who.png";
   static String drawer1 = "assets/png/drawer1.png";
   static String drawer2 = "assets/png/drawer2.png";
+  static String splashLogo = "assets/png/splash_logo.png";
 }

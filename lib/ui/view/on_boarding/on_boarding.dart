@@ -42,8 +42,8 @@ class _OnBoardingOneState extends State<OnBoardingOne> {
               Container(
                 margin: EdgeInsets.only(right: VarConstant.rightMargin20),
                 child: inkWell(
-                  onTap: () async {
-                    await preferences.setBool('login', true);
+                  onTap: () {
+                    box.write('login', true);
                     Navigator.pushNamedAndRemoveUntil(
                         context, Routes.home, (route) => false);
                     // Navigator.pushNamed(context, Routes.login);
@@ -110,8 +110,8 @@ class _OnBoardingOneState extends State<OnBoardingOne> {
                               ColorConstant.orange.withOpacity(0.5)),
                     if (model.curr == model.onBoardingList.length - 1)
                       inkWell(
-                          onTap: () async {
-                            await preferences.setBool('login', true);
+                          onTap: () {
+                            box.write('login', true);
                             Navigator.pushNamedAndRemoveUntil(
                                 context, Routes.home, (route) => false);
                             // Navigator.pushNamed(context, Routes.login);

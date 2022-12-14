@@ -25,13 +25,15 @@ class _SplashViewState extends State<SplashView>
   @override
   void initState() {
     super.initState();
-    isLogin = preferences.getBool('login') ?? false;
+    isLogin = box.read('login') ?? false;
     print('login $isLogin');
-    Timer(const Duration(seconds: 4), () {
+    Timer(const Duration(seconds: 2), () {
       if (isLogin != null && isLogin!) {
-        Navigator.pushNamed(context, Routes.home);
+        Navigator.pushNamedAndRemoveUntil(
+            context, Routes.home, (routes) => false);
       } else {
-        Navigator.pushNamed(context, Routes.onBoardingOne);
+        Navigator.pushNamedAndRemoveUntil(
+            context, Routes.onBoardingOne, (routes) => false);
       }
     });
   }
@@ -58,11 +60,15 @@ class _SplashViewState extends State<SplashView>
                       ImageConstant.splashBack,
                       color: const Color(0xffEE5E70),
                     )),
-                    Lottie.asset(
-                      'assets/splash/splash_anim.zip',
-                      width: 10,
-                      height: 10,
-                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Image.asset(ImageConstant.splashLogo),
+                    )
+                    // Lottie.asset(
+                    //   'assets/splash/splash_anim.zip',
+                    //   width: 10,
+                    //   height: 10,
+                    // ),
                   ],
                 )),
           ),

@@ -14,7 +14,6 @@ import 'package:auto_forward_sms/core/view_model/home_view_model/home_view_model
 import 'package:auto_forward_sms/ui/check_network/check_network.dart';
 import 'package:auto_forward_sms/ui/view/src/slidable_view/src/action_pane_motions.dart';
 import 'package:auto_forward_sms/ui/view/src/slidable_view/src/actions.dart';
-import 'package:auto_forward_sms/ui/view/src/sms_permission_dialog.dart';
 import 'package:auto_forward_sms/ui/widget/custom_app_bar.dart';
 import 'package:auto_forward_sms/ui/widget/custom_switch.dart';
 import 'package:auto_forward_sms/ui/widget/inkwell.dart';
@@ -31,13 +30,13 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
+class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   HomeViewModel model = HomeViewModel();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   List<FilterList> filterList = [];
 
-/*  AppLifecycleState? _notification;
+  AppLifecycleState? _notification;
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -46,29 +45,27 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
     });
     switch (state) {
       case AppLifecycleState.resumed:
-        // await initPlatformState();
         print("app in resumed");
         break;
       case AppLifecycleState.inactive:
-        //  await initPlatformState();
+        box.save();
         print("INACTIVE :: ${box.read('save')}");
 
         break;
       case AppLifecycleState.paused:
         print("app in paused");
-        // await initPlatformState();
+        box.save();
         print("PAUSED :: ${box.read('save')}");
         break;
       case AppLifecycleState.detached:
-        //await initPlatformState();
         print("app in detached");
         break;
     }
-  }*/
+  }
 
   @override
   void dispose() {
-    // WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -79,24 +76,22 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
         await model.telephony.requestPhoneAndSmsPermissions ?? false;
     if (permissionsGranted != null && permissionsGranted == true) {
       model.telephony.listenIncomingSms(
-          onNewMessage: (message) async {
-            String? decodeData = preferences.getString('save');
-            // final String decodeData = await box.read('save');
-            if (decodeData != null) {
-              List<FilterList> filterListData = FilterList.decode(decodeData);
-              filterListData = filterListData
-                  .where((element) => element.switchOn == true)
-                  .toList();
-              print("^^^^^ ${filterListData.map((e) => e.text)}");
-              setState(() {});
-              if (message.body != null) {
-                for (int i = 0; i < filterListData.length; i++) {
-                  print("***fg ${message.body!}:: ${filterListData[i].text}");
-                  model.telephony.sendSms(
-                      to: filterListData[i].text!, message: message.body!);
-                }
-                setState(() {});
+          onNewMessage: (message) {
+            final String decodeData = box.read('save');
+
+            List<FilterList> filterListData = FilterList.decode(decodeData);
+            filterListData = filterListData
+                .where((element) => element.switchOn == true)
+                .toList();
+            print("^^^^^ ${filterListData.map((e) => e.text)}");
+            setState(() {});
+            if (message.body != null) {
+              for (int i = 0; i < filterListData.length; i++) {
+                print("***fg ${message.body!}:: ${filterListData[i].text}");
+                model.telephony.sendSms(
+                    to: filterListData[i].text!, message: message.body!);
               }
+              setState(() {});
             }
           },
           onBackgroundMessage: onBackgroundMessage);
@@ -129,7 +124,7 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
       },
       onModelReady: (model) {
         this.model = model;
-        // WidgetsBinding.instance.addObserver(this);
+        WidgetsBinding.instance.addObserver(this);
         getPrefList();
       },
     );
@@ -172,8 +167,7 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
   }
 
   getPrefList() {
-    String? decodeData = preferences.getString('save');
-    // final String? decodeData = box.read('save');
+    final String? decodeData = box.read('save');
     if (decodeData != null) {
       filterList = FilterList.decode(decodeData);
 
@@ -223,15 +217,12 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
                   }
                   setState(() {});
                   String encodeData = FilterList.encode(this.filterList);
-                  await preferences.remove('save');
-                  await preferences.setString('save', encodeData);
-
-                  // box.remove('save');
-                  //   box.write('save', encodeData);
-                  //   box.save();
+                  box.remove('save');
+                  box.write('save', encodeData);
+                  box.save();
                   setState(() {});
                   print(
-                      "%%%% EDIT ${this.filterList.map((e) => e.text).toList()}  %%% ${preferences.getString('save')}");
+                      "%%%% EDIT ${this.filterList.map((e) => e.text).toList()}  %%% ${box.read('save')}");
                   await initPlatformState();
 
                   //await permissionFuc(filterList: this.filterList);
@@ -245,16 +236,13 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
               this.filterList.removeAt(index);
               setState(() {});
               String encodeData = FilterList.encode(this.filterList);
-              await preferences.remove('save');
-              await preferences.setString('save', encodeData);
-
-              // box.remove('save');
-              // box.write('save', encodeData);
-              // box.save();
+              box.remove('save');
+              box.write('save', encodeData);
+              box.save();
               setState(() {});
 
               print(
-                  "%%%% DELETE % ${this.filterList.map((e) => e.text).toList()} %% ${preferences.getString('save')}");
+                  "%%%% DELETE % ${this.filterList.map((e) => e.text).toList()} %% ${box.read('save')}");
               await initPlatformState();
 
               //     await permissionFuc(filterList: this.filterList);
@@ -272,14 +260,11 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
               setState(() {});
 
               String encodeData = FilterList.encode(this.filterList);
-              await preferences.remove('save');
-              await preferences.setString('save', encodeData);
-
-              // box.remove('save');
-              // box.write('save', encodeData);
-              // box.save();
+              box.remove('save');
+              box.write('save', encodeData);
+              box.save();
               print(
-                  "%%%% SWITCH ${this.filterList.map((e) => e.text)} TAP %%% ${preferences.getString('save')}");
+                  "%%%% SWITCH ${this.filterList.map((e) => e.text)} TAP %%% ${box.read('save')}");
 
               setState(() {});
               await initPlatformState();
@@ -337,13 +322,13 @@ class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
         setState(() {});
 
         String encodeData = FilterList.encode(filterList);
-        await preferences.setString('save', encodeData);
-        // box.write('save', encodeData);
-        // box.save();
+
+        box.write('save', encodeData);
+        box.save();
         setState(() {}); // filterLi
 
         print(
-            "%%%% ON ADD TAP ${filterList.map((e) => e.text)}%%% ${preferences.getString('save')}");
+            "%%%% ON ADD TAP ${filterList.map((e) => e.text)}%%% ${box.read('save')}");
         await initPlatformState();
 
         //   await permissionFuc(filterList: filterList);
