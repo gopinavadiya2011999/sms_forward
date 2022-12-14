@@ -23,6 +23,7 @@ Future<void> main() async {
   setLocator();
   preferences = await SharedPreferences.getInstance();
   preferences.reload();
+
   // await GetStorage.init();
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.black));
