@@ -5,6 +5,7 @@ import 'package:auto_forward_sms/main.dart';
 import 'package:auto_forward_sms/ui/view/home_view/home_view.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telephony/telephony.dart';
 
 import '../model/filter_list.dart';
@@ -13,25 +14,30 @@ List<FilterList> filterLists = [];
 
 @pragma('vm:entry-point')
 onBackgroundMessage(SmsMessage sms) async {
-  await GetStorage.init();
+  // await GetStorage.init();
   // await initPlatformState();
-  print("^^READ BACKGROUND^^ ${box.read('save')}");
-  filterLists = FilterList.decode(await box.read('save'));
-  filterLists =
-      filterLists.where((element) => element.switchOn == true).toList();
-  print(
-      "^^^^^^^^^^^^FilterLIst:::: :PN BAVKBREd:: %${filterLists.map((e) => e.text)}");
-  if (filterLists.isNotEmpty) {
-    if (sms.body != null) {
-      print(
-          "#####${sms.body}#####: ${filterLists.map((e) => e.text).toList().toSet()}");
-      print(
-          "#####${sms.body}#####: ${filterLists.map((e) => e.switchOn).toList().toSet()}");
+  preferences = await SharedPreferences.getInstance();
+  preferences.reload();
+  print("^^READ BACKGROUND^^ ${preferences.getString('save')}");
+  String? decodeData = preferences.getString('save');
+  if (decodeData != null) {
+    filterLists = FilterList.decode(decodeData);
+    filterLists =
+        filterLists.where((element) => element.switchOn == true).toList();
+    print(
+        "^^^^^^^^^^^^FilterLIst:::: :PN BAVKBREd:: %${filterLists.map((e) => e.text)}");
+    if (filterLists.isNotEmpty) {
+      if (sms.body != null) {
+        print(
+            "#####${sms.body}#####: ${filterLists.map((e) => e.text).toList().toSet()}");
+        print(
+            "#####${sms.body}#####: ${filterLists.map((e) => e.switchOn).toList().toSet()}");
 
-      for (int i = 0; i < filterLists.length; i++) {
-        print("***bg :: ${filterLists[i].text}");
-        Telephony.backgroundInstance
-            .sendSms(to: filterLists[i].text!, message: sms.body!);
+        for (int i = 0; i < filterLists.length; i++) {
+          print("***bg :: ${filterLists[i].text}");
+          Telephony.backgroundInstance
+              .sendSms(to: filterLists[i].text!, message: sms.body!);
+        }
       }
     }
   }

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:auto_forward_sms/core/constant/image_constant.dart';
+import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/core/view_model/base_view.dart';
 import 'package:auto_forward_sms/core/view_model/on_boarding/splash_view_model.dart';
+import 'package:auto_forward_sms/main.dart';
 import 'package:auto_forward_sms/ui/view/on_boarding/on_boarding.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -18,22 +20,19 @@ class _SplashViewState extends State<SplashView>
     with SingleTickerProviderStateMixin {
   SplashViewModel model = SplashViewModel();
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  bool? isLogin;
 
   @override
   void initState() {
     super.initState();
+    isLogin = preferences.getBool('login') ?? false;
+    print('login $isLogin');
     Timer(const Duration(seconds: 4), () {
-      // if (_isLogin) {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const OnBoardingOne()));
-      // } else {
-      //  flag = true;
-      setState(() {});
-      //  }
+      if (isLogin != null && isLogin!) {
+        Navigator.pushNamed(context, Routes.home);
+      } else {
+        Navigator.pushNamed(context, Routes.onBoardingOne);
+      }
     });
   }
 

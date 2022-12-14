@@ -14,17 +14,13 @@ import 'package:auto_forward_sms/core/view_model/home_view_model/home_view_model
 import 'package:auto_forward_sms/ui/check_network/check_network.dart';
 import 'package:auto_forward_sms/ui/view/src/slidable_view/src/action_pane_motions.dart';
 import 'package:auto_forward_sms/ui/view/src/slidable_view/src/actions.dart';
+import 'package:auto_forward_sms/ui/view/src/sms_permission_dialog.dart';
 import 'package:auto_forward_sms/ui/widget/custom_app_bar.dart';
 import 'package:auto_forward_sms/ui/widget/custom_switch.dart';
 import 'package:auto_forward_sms/ui/widget/inkwell.dart';
 import 'package:auto_forward_sms/ui/widget/rounded_floating_btn.dart';
 import 'package:auto_forward_sms/ui/widget/white_square_button.dart';
-import 'package:eventify/eventify.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:telephony/telephony.dart';
-
 import '../../../core/services/fore_ground_services.dart';
 import '../src/slidable_view/src/slidable.dart';
 
@@ -35,13 +31,13 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
+class _HomeViewState extends State<HomeView> /*with WidgetsBindingObserver */ {
   HomeViewModel model = HomeViewModel();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
   List<FilterList> filterList = [];
 
-  AppLifecycleState? _notification;
+/*  AppLifecycleState? _notification;
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -50,52 +46,57 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     });
     switch (state) {
       case AppLifecycleState.resumed:
-        await initPlatformState();
+        // await initPlatformState();
         print("app in resumed");
         break;
       case AppLifecycleState.inactive:
-        await initPlatformState();
+        //  await initPlatformState();
         print("INACTIVE :: ${box.read('save')}");
 
         break;
       case AppLifecycleState.paused:
         print("app in paused");
-        await initPlatformState();
+        // await initPlatformState();
         print("PAUSED :: ${box.read('save')}");
         break;
       case AppLifecycleState.detached:
-        await initPlatformState();
+        //await initPlatformState();
         print("app in detached");
         break;
     }
-  }
+  }*/
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    // WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  bool? permissionsGranted;
+
   initPlatformState() async {
-    bool permissionsGranted =
+    permissionsGranted =
         await model.telephony.requestPhoneAndSmsPermissions ?? false;
-    if (permissionsGranted) {
+    if (permissionsGranted != null && permissionsGranted == true) {
       model.telephony.listenIncomingSms(
           onNewMessage: (message) async {
-            final String decodeData = await box.read('save');
-            List<FilterList> filterListData = FilterList.decode(decodeData);
-            filterListData = filterListData
-                .where((element) => element.switchOn == true)
-                .toList();
-            print("^^^^^ ${filterListData.map((e) => e.text)}");
-            setState(() {});
-            if (message.body != null) {
-              for (int i = 0; i < filterListData.length; i++) {
-                print("***fg ${message.body!}:: ${filterListData[i].text}");
-                model.telephony.sendSms(
-                    to: filterListData[i].text!, message: message.body!);
-              }
+            String? decodeData = preferences.getString('save');
+            // final String decodeData = await box.read('save');
+            if (decodeData != null) {
+              List<FilterList> filterListData = FilterList.decode(decodeData);
+              filterListData = filterListData
+                  .where((element) => element.switchOn == true)
+                  .toList();
+              print("^^^^^ ${filterListData.map((e) => e.text)}");
               setState(() {});
+              if (message.body != null) {
+                for (int i = 0; i < filterListData.length; i++) {
+                  print("***fg ${message.body!}:: ${filterListData[i].text}");
+                  model.telephony.sendSms(
+                      to: filterListData[i].text!, message: message.body!);
+                }
+                setState(() {});
+              }
             }
           },
           onBackgroundMessage: onBackgroundMessage);
@@ -128,7 +129,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       },
       onModelReady: (model) {
         this.model = model;
-        WidgetsBinding.instance.addObserver(this);
+        // WidgetsBinding.instance.addObserver(this);
         getPrefList();
       },
     );
@@ -171,7 +172,8 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   }
 
   getPrefList() {
-    final String? decodeData = box.read('save');
+    String? decodeData = preferences.getString('save');
+    // final String? decodeData = box.read('save');
     if (decodeData != null) {
       filterList = FilterList.decode(decodeData);
 
@@ -221,10 +223,15 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   }
                   setState(() {});
                   String encodeData = FilterList.encode(this.filterList);
-                  box.write('save', encodeData);
+                  await preferences.remove('save');
+                  await preferences.setString('save', encodeData);
+
+                  // box.remove('save');
+                  //   box.write('save', encodeData);
+                  //   box.save();
                   setState(() {});
                   print(
-                      "%%%% EDIT ${this.filterList.map((e) => e.text).toList()}  %%% ${box.read('save')}");
+                      "%%%% EDIT ${this.filterList.map((e) => e.text).toList()}  %%% ${preferences.getString('save')}");
                   await initPlatformState();
 
                   //await permissionFuc(filterList: this.filterList);
@@ -238,11 +245,16 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               this.filterList.removeAt(index);
               setState(() {});
               String encodeData = FilterList.encode(this.filterList);
-              box.write('save', encodeData);
+              await preferences.remove('save');
+              await preferences.setString('save', encodeData);
+
+              // box.remove('save');
+              // box.write('save', encodeData);
+              // box.save();
               setState(() {});
 
               print(
-                  "%%%% DELETE % ${this.filterList.map((e) => e.text).toList()} %% ${box.read('save')}");
+                  "%%%% DELETE % ${this.filterList.map((e) => e.text).toList()} %% ${preferences.getString('save')}");
               await initPlatformState();
 
               //     await permissionFuc(filterList: this.filterList);
@@ -260,10 +272,14 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               setState(() {});
 
               String encodeData = FilterList.encode(this.filterList);
-              box.write('save', encodeData);
+              await preferences.remove('save');
+              await preferences.setString('save', encodeData);
 
+              // box.remove('save');
+              // box.write('save', encodeData);
+              // box.save();
               print(
-                  "%%%% SWITCH ${this.filterList.map((e) => e.text)} TAP %%% ${box.read('save')}");
+                  "%%%% SWITCH ${this.filterList.map((e) => e.text)} TAP %%% ${preferences.getString('save')}");
 
               setState(() {});
               await initPlatformState();
@@ -293,27 +309,46 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
     return customRoundFloatingBtn(
         context: context,
         onPressed: () {
-          Navigator.pushNamed(context, Routes.newFilter,
-                  arguments: SmsForwardRoute(phone: ''))
-              .then((value) async {
-            if (value != null) {
-              filterList
-                  .add(FilterList(text: value.toString(), switchOn: true));
-              setState(() {});
-
-              String encodeData = FilterList.encode(filterList);
-
-              box.write('save', encodeData);
-              setState(() {}); // filterLi
-
-              print(
-                  "%%%% ON ADD TAP ${filterList.map((e) => e.text)}%%% ${box.read('save')}");
-              await initPlatformState();
-
-              //   await permissionFuc(filterList: filterList);
-            }
-          });
+          /*  if (permissionsGranted == null) {
+            showDialog(
+              context: context,
+              builder: (context) => smsPermissionDialog(okTap: () async {
+                Navigator.pop(context);
+                await initPlatformState();
+                if (permissionsGranted == true) {
+                  redirectToFilterScreen();
+                }
+              }, cancelTap: () {
+                Navigator.pop(context);
+              }),
+            );
+          } else {*/
+          redirectToFilterScreen();
+          // }
         });
+  }
+
+  redirectToFilterScreen() {
+    Navigator.pushNamed(context, Routes.newFilter,
+            arguments: SmsForwardRoute(phone: ''))
+        .then((value) async {
+      if (value != null) {
+        filterList.add(FilterList(text: value.toString(), switchOn: true));
+        setState(() {});
+
+        String encodeData = FilterList.encode(filterList);
+        await preferences.setString('save', encodeData);
+        // box.write('save', encodeData);
+        // box.save();
+        setState(() {}); // filterLi
+
+        print(
+            "%%%% ON ADD TAP ${filterList.map((e) => e.text)}%%% ${preferences.getString('save')}");
+        await initPlatformState();
+
+        //   await permissionFuc(filterList: filterList);
+      }
+    });
   }
 
   _slideActionBtn(

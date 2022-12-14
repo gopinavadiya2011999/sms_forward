@@ -8,17 +8,22 @@ import 'package:auto_forward_sms/provider/provider_setup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get_storage/get_storage.dart';
+
+// import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ui/view/on_boarding/splash_view.dart';
 
-GetStorage box = GetStorage();
+// GetStorage box = GetStorage();
+late SharedPreferences preferences;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
   setLocator();
+  preferences = await SharedPreferences.getInstance();
+  preferences.reload();
+  // await GetStorage.init();
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.black));
   runApp(const MyApp());
@@ -34,7 +39,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Flutter Demo',
         home: const SplashView(),
-        //navigatorKey: locator<NavigationService>().navigationKey,
         themeMode: ThemeMode.light,
         theme: ThemeData(
           primarySwatch: Colors.blue,
