@@ -36,12 +36,12 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   List<FilterList> filterList = [];
 
-  AppLifecycleState? _notification;
+  AppLifecycleState? notification;
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     setState(() {
-      _notification = state;
+      notification = state;
     });
     switch (state) {
       case AppLifecycleState.resumed:
