@@ -37,7 +37,7 @@ onBackgroundMessage(SmsMessage sms) async {
   }
 }
 
-@pragma('vm:entry-point')
+//@pragma('vm:entry-point')
 void startCallback() {
   FlutterForegroundTask.setTaskHandler(MyTaskHandler());
 }

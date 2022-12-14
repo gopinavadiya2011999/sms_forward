@@ -7,7 +7,9 @@ import 'package:auto_forward_sms/core/model/filter_list.dart';
 import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/core/utils/utils.dart';
 import 'package:auto_forward_sms/core/view_model/base_view.dart';
+import 'package:auto_forward_sms/database_helper.dart';
 import 'package:auto_forward_sms/main.dart';
+import 'package:auto_forward_sms/sms_model.dart';
 import 'package:auto_forward_sms/ui/view/home_view/new_filter.dart';
 import 'package:auto_forward_sms/ui/view/src/home_drawer_view.dart';
 import 'package:auto_forward_sms/core/view_model/home_view_model/home_view_model.dart';
@@ -33,10 +35,22 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   HomeViewModel model = HomeViewModel();
   final GlobalKey<ScaffoldState> _key = GlobalKey();
-
+  final dbHelper = DatabaseHelper.instance;
   List<FilterList> filterList = [];
-
   AppLifecycleState? notification;
+
+  List<SmsModel> smsModel = [];
+
+  //insert controllers
+  String? text;
+
+  bool? switchValue;
+
+  //update controllers
+  String? textUpdate;
+
+  bool? switchValueUpdate;
+  int? id;
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -48,19 +62,49 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         print("app in resumed");
         break;
       case AppLifecycleState.inactive:
-        box.save();
-        print("INACTIVE :: ${box.read('save')}");
-
+        //box.save();
+        //print("INACTIVE :: ${box.read('save')}");
         break;
       case AppLifecycleState.paused:
         print("app in paused");
-        box.save();
+        // box.save();
         print("PAUSED :: ${box.read('save')}");
         break;
       case AppLifecycleState.detached:
         print("app in detached");
         break;
     }
+  }
+
+  void _queryAll() async {
+    final allRows = await dbHelper.queryAllRows();
+    smsModel.clear();
+    allRows.forEach((element) => smsModel.add(SmsModel.fromMap(element)));
+    print('Query done');
+    setState(() {});
+  }
+
+  void _insert({required String text, required bool switchValue}) async {
+    Map<String, dynamic> row = {
+      DatabaseHelper.text: text,
+      DatabaseHelper.switchOn: switchValue,
+    };
+
+    SmsModel smsModel = SmsModel.fromMap(row);
+    final id = await dbHelper.insert(smsModel);
+    print("^^^insert ID::: ${id}");
+  }
+
+  void _update(
+      {required int id, required String text, required bool switchOn}) async {
+    SmsModel smsModel = SmsModel(smsId: id, text: text, switchOn: switchOn);
+    final rowsAffected = await dbHelper.update(smsModel);
+    print("update::  ${rowsAffected} rows");
+  }
+
+  void _delete({required int id}) async {
+    final rowsAffected = await dbHelper.delete(id);
+    print("Delete::  ${rowsAffected} rows");
   }
 
   @override
@@ -96,7 +140,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
           },
           onBackgroundMessage: onBackgroundMessage);
 
-      /*    model.initForeGroundTask(context: context);
+      /* model.initForeGroundTask(context: context);
 
       if (await FlutterForegroundTask.isRunningService) {
         final newReceivePort = await FlutterForegroundTask.receivePort;
@@ -212,6 +256,10 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                 if (value != null) {
                   for (var value1 in this.filterList) {
                     if (value1.text == filterList.text) {
+                      _update(
+                          id: index,
+                          text: value1.text.toString(),
+                          switchOn: value1.switchOn);
                       value1.text = value.toString();
                     }
                   }
@@ -224,7 +272,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   print(
                       "%%%% EDIT ${this.filterList.map((e) => e.text).toList()}  %%% ${box.read('save')}");
                   await initPlatformState();
-
+                  _queryAll();
                   //await permissionFuc(filterList: this.filterList);
                 }
               });
@@ -234,6 +282,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             index: index,
             onPressed: (context) async {
               this.filterList.removeAt(index);
+              _delete(id: index);
               setState(() {});
               String encodeData = FilterList.encode(this.filterList);
               box.remove('save');
@@ -244,6 +293,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               print(
                   "%%%% DELETE % ${this.filterList.map((e) => e.text).toList()} %% ${box.read('save')}");
               await initPlatformState();
+              _queryAll();
 
               //     await permissionFuc(filterList: this.filterList);
             }),
@@ -258,9 +308,13 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             onChanged: (value) async {
               filterList.switchOn = value;
               setState(() {});
+              _update(
+                  id: index,
+                  text: filterList.text.toString(),
+                  switchOn: filterList.switchOn);
 
               String encodeData = FilterList.encode(this.filterList);
-              box.remove('save');
+              box.write('save', '');
               box.write('save', encodeData);
               box.save();
               print(
@@ -268,7 +322,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
               setState(() {});
               await initPlatformState();
-
+              _queryAll();
               //  await permissionFuc(filterList: this.filterList);
             },
           ),
@@ -318,11 +372,11 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             arguments: SmsForwardRoute(phone: ''))
         .then((value) async {
       if (value != null) {
+        _insert(text: value.toString(), switchValue: true);
         filterList.add(FilterList(text: value.toString(), switchOn: true));
         setState(() {});
 
         String encodeData = FilterList.encode(filterList);
-
         box.write('save', encodeData);
         box.save();
         setState(() {}); // filterLi
@@ -330,7 +384,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         print(
             "%%%% ON ADD TAP ${filterList.map((e) => e.text)}%%% ${box.read('save')}");
         await initPlatformState();
-
+        _queryAll();
         //   await permissionFuc(filterList: filterList);
       }
     });
