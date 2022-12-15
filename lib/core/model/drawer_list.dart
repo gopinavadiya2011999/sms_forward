@@ -44,12 +44,12 @@ List<DrawerList> drawerListItems = [
       icon: IconConstant.settings,
       text: "Settings",
       routeName: Routes.home),*/
-  DrawerList(
+/*  DrawerList(
       height: 19,
       width: 21,
       icon: IconConstant.premium,
       text: "Premium Version",
-      routeName: Routes.home),
+      routeName: Routes.home),*/
   DrawerList(
       height: 20,
       width: 20,

@@ -32,13 +32,11 @@ class DatabaseHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-    
     CREATE TABLE $tableName(
-    $smsId INTEGER PRIMARY KEY AUTOINCREMENT,
-    $text TEXT NOT NULL
-    $switchOn BOOLEAN NOT NULL,
-    )
-    ''');
+    $smsId INTEGER  NOT NULL,
+    $text TEXT NOT NULL,
+    $switchOn INTEGER NOT NULL
+    )''');
   }
 
   Future<int> insert(SmsModel shoppingModel) async {
@@ -69,13 +67,16 @@ class DatabaseHelper {
 
   Future<int> update(SmsModel shoppingModel) async {
     Database database = await instance.database;
-    int smsId = shoppingModel.toMap()['smsId'];
-    return await database.update(tableName, shoppingModel.toMap(),
-        where: '$smsId = ?', whereArgs: [smsId]);
+    print(
+        "sms model :: ${shoppingModel.smsId} || sms text:: ${shoppingModel.text} || sms switch:: ${shoppingModel.switchOn}");
+    return database.update(tableName, shoppingModel.toMap(),
+        where: "smsId = ?", whereArgs: [shoppingModel.smsId]);
   }
 
-  Future<int> delete(int smsId) async {
+  Future<int> delete(SmsModel shoppingModel) async {
     Database database = await instance.database;
-    return database.delete(tableName, where: '$smsId = ?', whereArgs: [smsId]);
+
+    return database.delete(tableName,
+        where: "smsId = ?", whereArgs: [shoppingModel.smsId]);
   }
 }

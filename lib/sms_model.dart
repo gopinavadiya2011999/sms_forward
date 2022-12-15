@@ -3,9 +3,9 @@ import 'package:auto_forward_sms/database_helper.dart';
 class SmsModel {
   int? smsId;
   String? text;
-  bool? switchOn = false;
+  int? switchOn = 0;
 
-  SmsModel({this.smsId, this.text, this.switchOn = false});
+  SmsModel({this.smsId, this.text, this.switchOn = 0});
 
   SmsModel.fromMap(Map<String, dynamic> map) {
     smsId = map['smsId'];

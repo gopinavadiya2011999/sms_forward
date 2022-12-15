@@ -5,23 +5,31 @@ class FilterList {
   bool switchOn;
   String? routeName;
   bool slide = false;
+  int index = 0;
 
   FilterList(
-      {this.text, this.switchOn = false, this.routeName, this.slide = false});
+      {this.text,
+      this.switchOn = false,
+      this.routeName,
+      this.slide = false,
+      this.index = 0});
 
   factory FilterList.fromJson(Map<String, dynamic> jsonData) {
     return FilterList(
-        text: jsonData['text'],
-        switchOn: jsonData['switchOn'],
-        routeName: jsonData['routeName'],
-        slide: jsonData['slide']);
+      text: jsonData['text'],
+      switchOn: jsonData['switchOn'],
+      routeName: jsonData['routeName'],
+      slide: jsonData['slide'],
+      index: jsonData['index'],
+    );
   }
 
   static Map<String, dynamic> toMap(FilterList music) => {
         'text': music.text,
         'switchOn': music.switchOn,
         'routeName': music.routeName,
-        'slide': music.slide
+        'slide': music.slide,
+        'index': music.index,
       };
 
   static String encode(List<FilterList> musics) => json.encode(

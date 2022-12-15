@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'dart:isolate';
 import 'package:auto_forward_sms/core/routing/routes.dart';
+import 'package:auto_forward_sms/core/utils/flutter_toast.dart';
 import 'package:auto_forward_sms/main.dart';
+import 'package:auto_forward_sms/sms_model.dart';
 import 'package:auto_forward_sms/ui/view/home_view/home_view.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_storage/get_storage.dart';
@@ -13,10 +15,27 @@ List<FilterList> filterLists = [];
 
 @pragma('vm:entry-point')
 onBackgroundMessage(SmsMessage sms) async {
-  await GetStorage.init();
+  List<SmsModel> smsModel = [];
+
+  // await GetStorage.init();
   // await initPlatformState();
-  print("^^READ BACKGROUND^^ ${box.read('save')}");
-  filterLists = FilterList.decode(await box.read('save'));
+  // print("^^READ BACKGROUND^^ ${box.read('save')}");
+  // filterLists = FilterList.decode(await box.read('save'));
+
+  final allRows = await dbHelper.queryAllRows();
+  smsModel.clear();
+  for (var element in allRows) {
+    smsModel.add(SmsModel.fromMap(element));
+  }
+  print('Query done ::${allRows.map((e) => e).toList()}');
+  filterLists.clear();
+  for (var element in smsModel) {
+    filterLists.add(FilterList(
+        index: element.smsId!,
+        text: element.text,
+        switchOn: element.switchOn == 1 ? true : false));
+  }
+
   filterLists =
       filterLists.where((element) => element.switchOn == true).toList();
   print(

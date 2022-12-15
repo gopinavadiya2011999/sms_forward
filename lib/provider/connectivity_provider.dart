@@ -7,7 +7,6 @@ class ConnectivityProvider with ChangeNotifier {
   bool get isOnline => _isOnline;
 
   ConnectivityProvider() {
-    print("is online ::: ${_isOnline}");
     Connectivity _connectivity = Connectivity();
     _connectivity.onConnectivityChanged.listen((result) async {
       if (result == ConnectivityResult.none) {
