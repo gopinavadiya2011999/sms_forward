@@ -56,56 +56,56 @@ class StretchMotion extends StatelessWidget {
   }
 }
 
-/// An [ActionPane] motion which reveals actions as if they were scrolling
-/// from the outside.
-class ScrollMotion extends StatelessWidget {
-  /// Creates a [ScrollMotion].
-  ///
-  /// {@animation 664 200 https://raw.githubusercontent.com/letsar/flutter_slidable/assets/scroll_motion.mp4}
-  const ScrollMotion({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final paneData = ActionPane.of(context)!;
-    final controller = Slidable.of(context)!;
-
-    // Each child starts just outside of the Slidable.
-    final startOffset = Offset(paneData.alignment.x, paneData.alignment.y);
-
-    final animation = controller.animation
-        .drive(CurveTween(curve: Interval(0, paneData.extentRatio)))
-        .drive(Tween(begin: startOffset, end: Offset.zero));
-
-    return SlideTransition(
-      position: animation,
-      child: const BehindMotion(),
-    );
-  }
-}
-
-/// An [ActionPane] motion which reveals actions as if they were drawers.
-class DrawerMotion extends StatelessWidget {
-  /// Creates a [DrawerMotion].
-  ///
-  /// {@animation 664 200 https://raw.githubusercontent.com/letsar/flutter_slidable/assets/drawer_motion.mp4}
-  const DrawerMotion({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final paneData = ActionPane.of(context)!;
-    final controller = Slidable.of(context)!;
-    final animation = controller.animation
-        .drive(CurveTween(curve: Interval(0, paneData.extentRatio)));
-
-    return FlexEntranceTransition(
-      mainAxisPosition: animation,
-      direction: paneData.direction,
-      startToEnd: paneData.fromStart,
-      children: paneData.children,
-    );
-  }
-}
+// /// An [ActionPane] motion which reveals actions as if they were scrolling
+// /// from the outside.
+// class ScrollMotion extends StatelessWidget {
+//   /// Creates a [ScrollMotion].
+//   ///
+//   /// {@animation 664 200 https://raw.githubusercontent.com/letsar/flutter_slidable/assets/scroll_motion.mp4}
+//   const ScrollMotion({
+//     Key? key,
+//   }) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final paneData = ActionPane.of(context)!;
+//     final controller = Slidable.of(context)!;
+//
+//     // Each child starts just outside of the Slidable.
+//     final startOffset = Offset(paneData.alignment.x, paneData.alignment.y);
+//
+//     final animation = controller.animation
+//         .drive(CurveTween(curve: Interval(0, paneData.extentRatio)))
+//         .drive(Tween(begin: startOffset, end: Offset.zero));
+//
+//     return SlideTransition(
+//       position: animation,
+//       child: const BehindMotion(),
+//     );
+//   }
+// }
+//
+// /// An [ActionPane] motion which reveals actions as if they were drawers.
+// class DrawerMotion extends StatelessWidget {
+//   /// Creates a [DrawerMotion].
+//   ///
+//   /// {@animation 664 200 https://raw.githubusercontent.com/letsar/flutter_slidable/assets/drawer_motion.mp4}
+//   const DrawerMotion({
+//     Key? key,
+//   }) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final paneData = ActionPane.of(context)!;
+//     final controller = Slidable.of(context)!;
+//     final animation = controller.animation
+//         .drive(CurveTween(curve: Interval(0, paneData.extentRatio)));
+//
+//     return FlexEntranceTransition(
+//       mainAxisPosition: animation,
+//       direction: paneData.direction,
+//       startToEnd: paneData.fromStart,
+//       children: paneData.children,
+//     );
+//   }
+// }

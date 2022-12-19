@@ -7,7 +7,6 @@ import 'package:auto_forward_sms/core/view_model/on_boarding/splash_view_model.d
 import 'package:auto_forward_sms/main.dart';
 import 'package:auto_forward_sms/ui/view/on_boarding/on_boarding.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({Key? key}) : super(key: key);

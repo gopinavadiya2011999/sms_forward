@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:provider/provider.dart';
-
 import 'ui/view/on_boarding/splash_view.dart';
 
 GetStorage box = GetStorage();

@@ -1,3 +1,4 @@
+/*
 import 'package:auto_forward_sms/core/localization/app_localization.dart';
 import 'package:auto_forward_sms/ui/view/src/custom_login_register_view.dart';
 import 'package:flutter/material.dart';
@@ -21,3 +22,4 @@ class _RegisterViewState extends State<RegisterView> {
         formKey: _formKey);
   }
 }
+*/

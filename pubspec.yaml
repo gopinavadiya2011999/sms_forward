@@ -1,5 +1,5 @@
 name: auto_forward_sms
-description: A new Flutter project.
+description: Auto sms forwarding app.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -42,21 +42,20 @@ dependencies:
   get_it: ^7.2.0
   connectivity_plus: ^3.0.2
   fluttertoast: ^8.1.1
-  flutter_svg: ^1.1.6
   expandable_page_view: ^1.0.9
-  lottie: ^2.0.0
   telephony: ^0.2.0
   get_storage:
   permission_handler: ^10.2.0
-  flutter_foreground_task: ^3.10.0
   shared_preferences: ^2.0.15
-  eventify: ^1.0.1
   flutter_inappwebview: ^5.7.2+2
   sqflite: ^2.2.2
+  yodo1mas: ^0.1.1
+  device_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons:
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -69,6 +68,11 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/png/app_logo.png"
+
 flutter:
 
   # The following line ensures that the Material Icons fonts is

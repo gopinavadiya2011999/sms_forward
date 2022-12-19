@@ -1,31 +1,25 @@
 import 'dart:isolate';
-
-import 'package:auto_forward_sms/core/model/filter_list.dart';
-import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/core/view_model/base_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:telephony/telephony.dart';
-import '../../platform_channel.dart';
-import '../../services/fore_ground_services.dart';
 
 class HomeViewModel extends BaseModel {
   String inComingSms = "Empty";
   ReceivePort? receivePort;
   Telephony telephony = Telephony.instance;
 
-// Future<bool> getPermission() async {
-//   if (await Permission.sms.status == PermissionStatus.granted) {
-//     return true;
-//   } else {
-//     if (await Permission.sms.request() == PermissionStatus.granted) {
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   }
-// }
+  Future<bool> getPermission() async {
+    if (await Permission.sms.status == PermissionStatus.granted) {
+      return true;
+    } else {
+      if (await Permission.sms.request() == PermissionStatus.granted) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
 //
 // void initForeGroundTask(
 //     {required BuildContext context, required List<FilterList> filterList}) {

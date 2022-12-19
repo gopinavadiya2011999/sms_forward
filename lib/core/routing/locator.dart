@@ -15,12 +15,12 @@ final locator = GetIt.instance;
 setLocator() {
   locator.registerLazySingleton(() => SplashViewModel());
   locator.registerLazySingleton(() => OnBoardingOneViewModel());
-  locator.registerLazySingleton(() => CustomLoginRegisterViewModel());
+//  locator.registerLazySingleton(() => CustomLoginRegisterViewModel());
   locator.registerLazySingleton(() => HomeViewModel());
   locator.registerLazySingleton(() => NewFilterViewModel());
-  locator.registerLazySingleton(() => GeneralSettingsViewModel());
-  locator.registerLazySingleton(() => WhereToSendViewModel());
-  locator.registerLazySingleton(() => FromWhoViewModel());
-  locator.registerLazySingleton(() => TextRuleViewModel());
-  locator.registerLazySingleton(() => HistoryViewModel());
+  // locator.registerLazySingleton(() => GeneralSettingsViewModel());
+  // locator.registerLazySingleton(() => WhereToSendViewModel());
+  // locator.registerLazySingleton(() => FromWhoViewModel());
+  // locator.registerLazySingleton(() => TextRuleViewModel());
+  // locator.registerLazySingleton(() => HistoryViewModel());
 }

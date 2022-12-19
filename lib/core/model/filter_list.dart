@@ -44,11 +44,11 @@ class FilterList {
           .toList();
 }
 
-// List<FilterList> filterList = [
-//   FilterList(routeName: '', text: "SMS from work to personal mail"),
-//   FilterList(routeName: '', text: "SMS from parents to work phone"),
-//   FilterList(routeName: '', text: "SMS from bank to post office"),
-// ];
+//List<FilterList> filterList = [
+//FilterList(routeName: '', text: "SMS from work to personal mail"),
+//FilterList(routeName: '', text: "SMS from parents to work phone"),
+//FilterList(routeName: '', text: "SMS from bank to post office"),
+//];
 
 List<FilterList> generalSetting = [
   FilterList(routeName: '', text: "Forward otp from banks", switchOn: false),

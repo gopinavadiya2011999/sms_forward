@@ -1,12 +1,12 @@
-import 'package:flutter/services.dart';
-
-class PlatFormChannel {
-  static const _channel = EventChannel("com.example.auto_forward_sms/sms");
-
-  Stream smsStream() async* {
-    yield* _channel.receiveBroadcastStream();
-  }
-}
+// import 'package:flutter/services.dart';
+//
+// class PlatFormChannel {
+//   static const _channel = EventChannel("com.smsforwarder.autoforwad/sms");
+//
+//   Stream smsStream() async* {
+//     yield* _channel.receiveBroadcastStream();
+//   }
+// }
 
 //
 // Telephony.instance.listenIncomingSms(

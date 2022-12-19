@@ -77,7 +77,7 @@ class HomeDrawerView extends StatelessWidget {
                             if (drawerList[index].text == 'Privacy Policy') {
                               Navigator.pushNamed(context, Routes.webView,
                                   arguments:
-                                      'https://sms-forwarder.com/privacy_policy.php');
+                                      'https://sites.google.com/view/lazy-squirrel-privacy/home');
                             }
 
                             if (drawerList.length - 1 == index) {
@@ -90,13 +90,13 @@ class HomeDrawerView extends StatelessWidget {
                                 },
                               );
                             }
-                            /*   if (drawerList[index].text == 'Log Out') {
+                            /*if (drawerList[index].text == 'Log Out') {
                               Navigator.pushNamed(context, Routes.splash);
                             } else {
                               // Navigator.pushNamedAndRemoveUntil(
-                              //     context,
-                              //     drawerList[index].routeName!,
-                              //     (route) => false);
+                              // context,
+                              // drawerList[index].routeName!,
+                              // (route) => false);
                             }*/
                           },
                           child: _customRow(

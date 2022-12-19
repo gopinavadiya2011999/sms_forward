@@ -266,25 +266,25 @@ class _SlidableState extends State<Slidable>
         child: SlidableScrollingBehavior(
           controller: controller,
           closeOnScroll: widget.closeOnScroll,
-          child: SlidableDismissal(
-            axis: flipAxis(widget.direction),
-            controller: controller,
-            child: ActionPaneConfiguration(
-              alignment: actionPaneAlignment,
-              direction: widget.direction,
-              isStartActionPane:
-                  controller.actionPaneType.value == ActionPaneType.start,
-              child: _SlidableControllerScope(
-                controller: controller,
-                child: Container(
-                    decoration: BoxDecoration(
-                        color: ColorConstant.orange270,
-                        borderRadius: BorderRadius.circular(10)),
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: content),
-              ),
+          //   child: SlidableDismissal(
+          //  axis: flipAxis(widget.direction),
+          //  controller: controller,
+          child: ActionPaneConfiguration(
+            alignment: actionPaneAlignment,
+            direction: widget.direction,
+            isStartActionPane:
+                controller.actionPaneType.value == ActionPaneType.start,
+            child: _SlidableControllerScope(
+              controller: controller,
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: ColorConstant.orange270,
+                      borderRadius: BorderRadius.circular(10)),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: content),
             ),
           ),
+          //   ),
         ),
       ),
     );

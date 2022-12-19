@@ -1,4 +1,4 @@
-package com.example.auto_forward_sms
+package com.smsforwarder.autoforwad
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -36,7 +36,7 @@ class MainActivity : FlutterActivity() {
             }
         }
         registerReceiver(smsReceiver, IntentFilter("android.provider.Telephony.SMS_RECEIVED"))
-        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.auto_forward_sms/sms")
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "com.smsforwarder.autoforwad/sms")
             .setStreamHandler(smsReceiver)
 
 

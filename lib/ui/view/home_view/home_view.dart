@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_forward_sms/core/constant/color_constant.dart';
 import 'package:auto_forward_sms/core/constant/icon_constant.dart';
 import 'package:auto_forward_sms/core/constant/image_constant.dart';
@@ -19,11 +21,14 @@ import 'package:auto_forward_sms/ui/view/src/slidable_view/src/action_pane_motio
 import 'package:auto_forward_sms/ui/view/src/slidable_view/src/actions.dart';
 import 'package:auto_forward_sms/ui/widget/custom_app_bar.dart';
 import 'package:auto_forward_sms/ui/widget/custom_switch.dart';
-import 'package:auto_forward_sms/ui/widget/inkwell.dart';
 import 'package:auto_forward_sms/ui/widget/rounded_floating_btn.dart';
 import 'package:auto_forward_sms/ui/widget/white_square_button.dart';
+import 'package:auto_forward_sms/ui/widget/yodo_ads.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:yodo1mas/testmasfluttersdktwo.dart';
 import '../../../core/services/fore_ground_services.dart';
 import '../src/slidable_view/src/slidable.dart';
 import '../src/sms_permission_dialog.dart';
@@ -37,37 +42,14 @@ class HomeView extends StatefulWidget {
 
 final dbHelper = DatabaseHelper.instance;
 
-class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
+class _HomeViewState extends State<HomeView> {
   HomeViewModel model = HomeViewModel();
+  static bool _showBanner = false;
   final GlobalKey<ScaffoldState> _key = GlobalKey();
   List<FilterList> filterList = [];
   AppLifecycleState? notification;
-
+  bool? permissionsGranted;
   List<SmsModel> smsModel = [];
-
-  /* @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    setState(() {
-      notification = state;
-    });
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print("app in resumed");
-        break;
-      case AppLifecycleState.inactive:
-        //box.save();
-        //print("INACTIVE :: ${box.read('save')}");
-        break;
-      case AppLifecycleState.paused:
-        print("app in paused");
-        // box.save();
-        print("PAUSED :: ${box.read('save')}");
-        break;
-      case AppLifecycleState.detached:
-        print("app in detached");
-        break;
-    }
-  }*/
 
   queryAll() async {
     final allRows = await dbHelper.queryAllRows();
@@ -78,21 +60,16 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
         smsModel.add(SmsModel.fromMap(element));
       }
     });
-    print('Query done ::${allRows.map((e) => e).toList()}');
+    if (kDebugMode) {
+      print('Query done ::${allRows.map((e) => e).toList()}');
+    }
   }
 
   void _insert(
       {required String text,
       required bool switchValue,
       required int index}) async {
-    int value = 0;
-    if (switchValue) {
-      value = 1;
-      setState(() {});
-    } else {
-      value = 0;
-      setState(() {});
-    }
+    int value = convertBoolToInt(switchOn: switchValue);
 
     Map<String, dynamic> row = {
       DatabaseHelper.smsId: index,
@@ -106,14 +83,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   void _update(
       {required int id, required String text, required bool switchOn}) async {
-    int value = 0;
-    if (switchOn) {
-      value = 1;
-      setState(() {});
-    } else {
-      value = 0;
-      setState(() {});
-    }
+    int value = convertBoolToInt(switchOn: switchOn);
 
     SmsModel smsModel = SmsModel(smsId: id, text: text, switchOn: value);
     await dbHelper.update(smsModel);
@@ -122,6 +92,14 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
 
   void _delete(
       {required int id, required String text, required bool switchOn}) async {
+    int value = convertBoolToInt(switchOn: switchOn);
+
+    SmsModel smsModel = SmsModel(smsId: id, text: text, switchOn: value);
+    await dbHelper.delete(smsModel);
+    setState(() {});
+  }
+
+  convertBoolToInt({required bool switchOn}) {
     int value = 0;
     if (switchOn) {
       value = 1;
@@ -130,18 +108,9 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
       value = 0;
       setState(() {});
     }
-    SmsModel smsModel = SmsModel(smsId: id, text: text, switchOn: value);
-    await dbHelper.delete(smsModel);
-    setState(() {});
+
+    return value;
   }
-
-/*  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }*/
-
-  bool? permissionsGranted;
 
   initPlatformState() async {
     permissionsGranted =
@@ -160,16 +129,20 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             setState(() {});
 
             // final String decodeData = box.read('save');
-
             // List<FilterList> filterListData = FilterList.decode(decodeData);
+
             filterListData = filterListData
                 .where((element) => element.switchOn == true)
                 .toList();
-            print("^^^^^ ${filterListData.map((e) => e.text)}");
+            if (kDebugMode) {
+              print("^^^^^ ${filterListData.map((e) => e.text)}");
+            }
             setState(() {});
             if (message.body != null) {
               for (int i = 0; i < filterListData.length; i++) {
-                print("***fg ${message.body!}:: ${filterListData[i].text}");
+                if (kDebugMode) {
+                  print("***fg ${message.body!}:: ${filterListData[i].text}");
+                }
                 model.telephony.sendSms(
                     to: filterListData[i].text!, message: message.body!);
               }
@@ -179,14 +152,6 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
             }
           },
           onBackgroundMessage: onBackgroundMessage);
-
-      /* model.initForeGroundTask(context: context);
-
-      if (await FlutterForegroundTask.isRunningService) {
-        final newReceivePort = await FlutterForegroundTask.receivePort;
-        model.registerReceivePort(
-            context: context, receivePortData: newReceivePort);
-      }*/
     }
   }
 
@@ -206,12 +171,29 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               body: _bodyView()),
         );
       },
-      onModelReady: (model) {
+      onModelReady: (model) async {
         this.model = model;
-        // WidgetsBinding.instance.addObserver(this);
+        String? deviceId = await _getId();
+        print("device idd====== ${deviceId}");
+        Yodo1MAS.instance.init("852XRc1nYX", true /*enablePrivacyDialog*/,
+            (successful) => debugPrint(successful.toString()));
+        initPlatformStates();
         getPrefList();
       },
     );
+  }
+
+  Future<void> initPlatformStates() async {
+    Yodo1MAS.instance.showBannerAd();
+
+    print("^^^^^^^%^^^r44545}");
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    // We also handle the message potentially returning null.
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
   }
 
   _bodyView() {
@@ -312,7 +294,7 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                         text: value.toString(),
                         switchOn: filterList.switchOn);
                     setState(() {});
-                    showBottomLongToast("Edited successfully !!");
+                    showBottomLongToast("Updated successfully !!");
 
                     queryAll();
                     // String encodeData = FilterList.encode(this.filterList);
@@ -347,15 +329,16 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               // box.write('save', encodeData);
               // box.save();
               // setState(() {});
-              //
+
               queryAll();
               await initPlatformState();
 
-              //     await permissionFuc(filterList: this.filterList);
+              //await permissionFuc(filterList: this.filterList);
             }),
       ]),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        height: 40,
+        padding: const EdgeInsets.only(/*top: 10, bottom: 10,*/ left: 8),
         // margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: customBoxDecoration(),
         child: Row(mainAxisSize: MainAxisSize.max, children: [
@@ -372,9 +355,14 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
               // box.write('save', '');
               // box.write('save', encodeData);
               // box.save();
-              queryAll();
-              showBottomLongToast("SMS Forwarding on for ${filterList.text}");
               setState(() {});
+              queryAll();
+              if (value) {
+                showBottomLongToast("SMS Forwarding on for ${filterList.text}");
+              } else {
+                showBottomLongToast(
+                    "SMS Forwarding off for ${filterList.text}");
+              }
               await initPlatformState();
 
               //await permissionFuc(filterList: this.filterList);
@@ -386,45 +374,136 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                 style: TextStyleConstant.skipStyle
                     .copyWith(color: ColorConstant.black22)),
           ),
-          inkWell(
-              onTap: () {
-                // Slidable.of(context)?.enableEndActionPane;
-                // // filterList.slide = !filterList.slide;
-                // setState(() {});
-              },
-              child: const Icon(Icons.more_vert)),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(5),
+                  topRight: Radius.circular(5)),
+              color: ColorConstant.orange270,
+            ),
+            height: double.infinity,
+            width: 10,
+          )
+          // inkWell(
+          //     onTap: () {
+          //       // Slidable.of(context)?.enableEndActionPane;
+          //       // // filterList.slide = !filterList.slide;
+          //       // setState(() {});
+          //     },
+          //     child: const Icon(Icons.more_vert)),
         ]),
       ),
     );
+  }
+
+  PermissionStatus? status;
+
+  Future<String?> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) {
+      // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else if (Platform.isAndroid) {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.id; // unique ID on Android
+    }
   }
 
   _floatingBtn() {
     return customRoundFloatingBtn(
         context: context,
         onPressed: () async {
-/*          if (permissionsGranted == null) {
-            showDialog(
-              context: context,
-              builder: (context) => smsPermissionDialog(okTap: () async {
-                Navigator.pop(context);
-                permissionsGranted =
-                    await model.telephony.requestPhoneAndSmsPermissions ??
-                        false;
+          Yodo1MAS.instance.showBannerAd();
 
-                if (permissionsGranted == true) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const YoDoAds()));
+          //Yodo1MAS.instance.showInterstitialAd();
+          //permissionsGranted = box.read('granted');
+
+          status = await Permission.sms.status;
+          switch (status) {
+            case PermissionStatus.granted:
+              box.write('granted', true);
+
+              redirectToFilterScreen();
+              break;
+            case PermissionStatus.denied:
+              status = await Permission.sms.request();
+
+              if (status!.isDenied) {
+                box.write('granted', false);
+                await openAppSettings();
+
+                if (status!.isGranted) {
+                  box.write('granted', true);
+
                   redirectToFilterScreen();
-                } else {
-                  print("elseeeeeeeeeeee ");
                 }
-              }, cancelTap: () {
-                Navigator.pop(context);
-              }),
-            );
-          } else {*/
-          redirectToFilterScreen();
-          //  }
-        });
+              }
+              if (status!.isPermanentlyDenied) {
+                await openAppSettings();
+                if (status == PermissionStatus.granted) {
+                  box.write('granted', true);
+                } else {
+                  box.write('3', false);
+                }
+              }
+              break;
+            default:
+          }
+          //   if (permissionsGranted != null &&
+          //       (status == PermissionStatus.granted ||
+          //           permissionsGranted == true)) {
+          //     redirectToFilterScreen();
+          //   } else {
+          //     showDialog(
+          //       context: context,
+          //       builder: (context) => smsPermissionDialog(okTap: () async {
+          //         Navigator.pop(context);
+          //         status = await Permission.sms.request();
+          //         if (status != null && status!.isGranted) {
+          //           redirectToFilterScreen();
+          //         } else {
+          //           status = await Permission.sms.status;
+          //           switch (status) {
+          //             case PermissionStatus.granted:
+          //               box.write('granted', true);
+          //
+          //               redirectToFilterScreen();
+          //               break;
+          //             case PermissionStatus.denied:
+          //               status = await Permission.sms.request();
+          //
+          //               if (status!.isDenied) {
+          //                 box.write('granted', false);
+          //                 await openAppSettings();
+          //
+          //                 if (status!.isGranted) {
+          //                   box.write('granted', true);
+          //
+          //                   redirectToFilterScreen();
+          //                 }
+          //               }
+          //               if (status!.isPermanentlyDenied) {
+          //                 await openAppSettings();
+          //                 if (status == PermissionStatus.granted) {
+          //                   box.write('granted', true);
+          //                 } else {
+          //                   box.write('3', false);
+          //                 }
+          //               }
+          //               break;
+          //             default:
+          //           }
+        }
+        //       }, cancelTap: () {
+        //         Navigator.pop(context);
+        //       }),
+        );
   }
+
+  //  });
 
   int index = 1;
 
@@ -446,16 +525,14 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
                   filterList.isNotEmpty ? filterList.last.index + 1 : index));
           setState(() {});
 
-          // String encodeData = FilterList.encode(filterList);
-          // box.write('save', encodeData);
-          // box.save();
-          // setState(() {});
+          //String encodeData = FilterList.encode(filterList);
+          //box.write('save', encodeData);
+          //box.save();
+          //setState(() {});
 
           queryAll();
-
           await initPlatformState();
-
-          //   await permissionFuc(filterList: filterList);
+          //await permissionFuc(filterList: filterList);
 
         } else {
           showBottomLongToast("Mobile number already exist");
@@ -467,22 +544,16 @@ class _HomeViewState extends State<HomeView> with WidgetsBindingObserver {
   bool checkSameNo({required String value}) {
     bool checkNo = false;
     if (filterList.isNotEmpty) {
-      print("^^^^^^^^^ IFFFFF NOT EMPTY");
       for (var element in filterList) {
-        print(
-            "^^${element.text}^ ${value}^^${element.text != value.toString()}");
         if (element.text.toString() == value.toString()) {
-          print("^^^^^^^^^ Not equal iff");
           checkNo = true;
           setState(() {});
         } else {
-          print("^^^^^^^^^if Not else");
           checkNo = false;
           setState(() {});
         }
       }
     } else {
-      print("^^^^^^^^^@@@ ELSEEEEE");
       checkNo = false;
       setState(() {});
     }

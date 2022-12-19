@@ -1,3 +1,4 @@
+/*
 import 'package:auto_forward_sms/core/constant/image_constant.dart';
 import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/core/utils/dismiss_keyboard.dart';
@@ -278,17 +279,21 @@ class _CustomLoginRegisterViewState extends State<CustomLoginRegisterView> {
   }
 
   _checkValidation() {
-    /* if (widget.formKey!.currentState!.validate()) {
+    */
+/* if (widget.formKey!.currentState!.validate()) {
       dismissKeyboard(context);
       setState(() {
         model.isValidForm = true;
-      });*/
+      });*/ /*
+
     Navigator.pushNamedAndRemoveUntil(context, Routes.home, (route) => false);
-    /* } else {
+    */
+/* } else {
       setState(() {
         model.isValidForm = false;
       });
-    }*/
+    }*/ /*
+
   }
 
   _formView() {
@@ -404,3 +409,4 @@ class _CustomLoginRegisterViewState extends State<CustomLoginRegisterView> {
     return null;
   }
 }
+*/

@@ -1,4 +1,5 @@
 import 'package:auto_forward_sms/sms_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
@@ -14,6 +15,7 @@ class DatabaseHelper {
   static const switchOn = 'switchOn';
 
   DatabaseHelper._privateConstructor();
+
 
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
@@ -39,6 +41,7 @@ class DatabaseHelper {
     )''');
   }
 
+
   Future<int> insert(SmsModel shoppingModel) async {
     Database database = await instance.database;
     return await database.insert(tableName, {
@@ -53,6 +56,7 @@ class DatabaseHelper {
     return await database.query(tableName);
   }
 
+
   Future<List<Map<String, dynamic>>> queryRows(shopName) async {
     Database database = await instance.database;
     return await database.query(tableName,
@@ -61,17 +65,21 @@ class DatabaseHelper {
 
   Future<int?> queryRowCount() async {
     Database database = await instance.database;
-    return Sqflite.firstIntValue(await database.rawQuery('SELECT COUNT(*) '
-        'FROM $tableName'));
+    return Sqflite.firstIntValue(
+        await database.rawQuery('SELECT COUNT(*) FROM $tableName'));
   }
+
 
   Future<int> update(SmsModel shoppingModel) async {
     Database database = await instance.database;
-    print(
-        "sms model :: ${shoppingModel.smsId} || sms text:: ${shoppingModel.text} || sms switch:: ${shoppingModel.switchOn}");
+    if (kDebugMode) {
+      print("sms model :: ${shoppingModel.smsId} || sms text :: ${shoppingModel
+          .text} || sms switch:: ${shoppingModel.switchOn}");
+    }
     return database.update(tableName, shoppingModel.toMap(),
         where: "smsId = ?", whereArgs: [shoppingModel.smsId]);
   }
+
 
   Future<int> delete(SmsModel shoppingModel) async {
     Database database = await instance.database;

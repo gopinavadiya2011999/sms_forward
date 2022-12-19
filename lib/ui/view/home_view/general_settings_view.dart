@@ -1,3 +1,4 @@
+/*
 import 'package:auto_forward_sms/core/constant/icon_constant.dart';
 import 'package:auto_forward_sms/core/constant/text_style_constant.dart';
 import 'package:auto_forward_sms/core/localization/app_localization.dart';
@@ -154,16 +155,21 @@ class _GeneralSettingsViewState extends State<GeneralSettingsView> {
   }
 
   _checkValidation() {
+*/
 /*    if (_formKey.currentState!.validate() && model.invalidFilter.isEmpty) {
       dismissKeyboard(context);
       setState(() {
         model.isValidForm = true;
-      });*/
+      });*/ /*
+
     Navigator.pushNamed(context, Routes.whereToSend);
+*/
 /*    } else {
       setState(() {
         model.isValidForm = false;
       });
-    }*/
+    }*/ /*
+
   }
 }
+*/
