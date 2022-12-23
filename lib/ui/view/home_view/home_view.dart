@@ -160,6 +160,7 @@ class _HomeViewState extends State<HomeView> {
           onNewMessage: (message) async {
             print("message address :: ${message.address}");
             print("message body:: ${message.body}");
+
             print("message body:: ${message.body}");
 
             List<FilterList> filterListData = [];
