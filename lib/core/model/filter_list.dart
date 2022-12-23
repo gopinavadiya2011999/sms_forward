@@ -2,33 +2,33 @@ import 'dart:convert';
 
 class FilterList {
   String? text;
-  bool switchOn;
-  String? routeName;
-  bool slide = false;
+  bool smsSwitch;
+  String? filterName;
+  bool otpSwitch = false;
   int index = 0;
 
   FilterList(
       {this.text,
-      this.switchOn = false,
-      this.routeName,
-      this.slide = false,
+      this.smsSwitch = false,
+      this.filterName,
+      this.otpSwitch = false,
       this.index = 0});
 
   factory FilterList.fromJson(Map<String, dynamic> jsonData) {
     return FilterList(
       text: jsonData['text'],
-      switchOn: jsonData['switchOn'],
-      routeName: jsonData['routeName'],
-      slide: jsonData['slide'],
+      smsSwitch: jsonData['smsSwitch'],
+      filterName: jsonData['filterName'],
+      otpSwitch: jsonData['otpSwitch'],
       index: jsonData['index'],
     );
   }
 
   static Map<String, dynamic> toMap(FilterList music) => {
         'text': music.text,
-        'switchOn': music.switchOn,
-        'routeName': music.routeName,
-        'slide': music.slide,
+        'smsSwitch': music.smsSwitch,
+        'filterName': music.filterName,
+        'otpSwitch': music.otpSwitch,
         'index': music.index,
       };
 
@@ -49,12 +49,12 @@ class FilterList {
 //FilterList(routeName: '', text: "SMS from parents to work phone"),
 //FilterList(routeName: '', text: "SMS from bank to post office"),
 //];
-
-List<FilterList> generalSetting = [
-  FilterList(routeName: '', text: "Forward otp from banks", switchOn: false),
-  FilterList(routeName: '', text: "Forward with roaming"),
-  FilterList(routeName: '', text: "Message history"),
-  FilterList(routeName: '', text: "Forward incoming sms message"),
-  FilterList(routeName: '', text: "Forward outgoing message", switchOn: false),
-  FilterList(routeName: '', text: "Filter schedule", switchOn: false),
-];
+//
+// List<FilterList> generalSetting = [
+//   FilterList(routeName: '', text: "Forward otp from banks", switchOn: false),
+//   FilterList(routeName: '', text: "Forward with roaming"),
+//   FilterList(routeName: '', text: "Message history"),
+//   FilterList(routeName: '', text: "Forward incoming sms message"),
+//   FilterList(routeName: '', text: "Forward outgoing message", switchOn: false),
+//   FilterList(routeName: '', text: "Filter schedule", switchOn: false),
+// ];

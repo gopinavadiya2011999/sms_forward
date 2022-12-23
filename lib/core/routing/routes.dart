@@ -14,4 +14,5 @@ class Routes {
   static const String textRule = 'textRule';
   static const String history = 'history';
   static const String webView = 'webView';
+  static const String smsHistory = 'smsHistory';
 }

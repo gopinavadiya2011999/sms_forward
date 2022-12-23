@@ -2,6 +2,7 @@ import 'package:auto_forward_sms/core/localization/app_localization.dart';
 import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/provider/connectivity_provider.dart';
 import 'package:auto_forward_sms/ui/check_network/no_internert.dart';
+import 'package:auto_forward_sms/ui/view/home_view/message_history_view.dart';
 import 'package:auto_forward_sms/ui/view/home_view/web_view_data.dart';
 import 'package:auto_forward_sms/ui/view/src/home_drawer_view.dart';
 import 'package:auto_forward_sms/ui/view/home_view/home_view.dart';
@@ -25,6 +26,8 @@ class PageRouter {
               );
         case Routes.onBoardingOne:
           return const OnBoardingOne();
+        case Routes.smsHistory:
+          return const MessageHistoryView();
         // case Routes.login:
         //   return const LoginView();
         // case Routes.register:

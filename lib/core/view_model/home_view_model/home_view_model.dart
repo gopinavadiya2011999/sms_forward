@@ -20,7 +20,27 @@ class HomeViewModel extends BaseModel {
     }
   }
 
-//
+// permissionFuc({required List<FilterList> filterList}) {
+//   WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+//     model.getPermission().then((value) async {
+//       bool permissionsGranted =
+//           await model.telephony.requestPhoneAndSmsPermissions ?? false;
+//       if (permissionsGranted) {
+//         model.initForeGroundTask(context: context, filterList: filterList);
+//         if (value) {
+//           if (await FlutterForegroundTask.isRunningService) {
+//             final newReceivePort = await FlutterForegroundTask.receivePort;
+//             model.registerReceivePort(
+//                 filterList: filterList,
+//                 context: context,
+//                 receivePortData: newReceivePort);
+//           }
+//         }
+//       }
+//     });
+//   });
+// }
+
 // void initForeGroundTask(
 //     {required BuildContext context, required List<FilterList> filterList}) {
 //   FlutterForegroundTask.init(

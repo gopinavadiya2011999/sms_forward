@@ -32,8 +32,8 @@
                 android:resource="@style/NormalTheme" />
 
             <meta-data
-                android:name="com.google.android.gms.ads.ca-app-pub-5580537606944457~4465578836"
-                android:value="852XRc1nYX" />
+                android:name="com.google.android.gms.ads.APPLICATION_ID"
+                android:value="jopV935IZE" />
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

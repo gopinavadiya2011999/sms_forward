@@ -7,6 +7,7 @@ import 'package:auto_forward_sms/core/view_model/on_boarding/splash_view_model.d
 import 'package:auto_forward_sms/main.dart';
 import 'package:auto_forward_sms/ui/view/on_boarding/on_boarding.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({Key? key}) : super(key: key);
@@ -25,8 +26,10 @@ class _SplashViewState extends State<SplashView>
   void initState() {
     super.initState();
     isLogin = box.read('login') ?? false;
-    print('login $isLogin');
+    // print('login $isLogin');
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     Timer(const Duration(seconds: 2), () {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       if (isLogin != null && isLogin!) {
         Navigator.pushNamedAndRemoveUntil(
             context, Routes.home, (routes) => false);

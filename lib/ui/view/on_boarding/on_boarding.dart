@@ -31,8 +31,8 @@ class _OnBoardingOneState extends State<OnBoardingOne> {
   Widget build(BuildContext context) {
     return BaseView<OnBoardingOneViewModel>(
       builder: (buildContext, model, child) {
-        print("############:::Height ${MediaQuery.of(context).size.height}");
-        print("%%%%%% Width::: ${MediaQuery.of(context).size.width}");
+        // print("############:::Height ${MediaQuery.of(context).size.height}");
+        // print("%%%%%% Width::: ${MediaQuery.of(context).size.width}");
         return Scaffold(
             body: SafeArea(
           child: Column(

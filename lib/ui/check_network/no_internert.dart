@@ -1,5 +1,6 @@
 import 'package:auto_forward_sms/core/constant/color_constant.dart';
-import 'package:auto_forward_sms/core/localization/app_localization.dart';
+import 'package:auto_forward_sms/core/constant/image_constant.dart';
+import 'package:auto_forward_sms/core/utils/utils.dart';
 import 'package:auto_forward_sms/ui/widget/inkwell.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -67,10 +68,10 @@ class _InternetConnectionCheckState extends State<InternetConnectionCheck> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // SafeArea(
-            //     bottom: false,
-            //     child: Image.asset(ImageConstants.pbtFitInvoicesImage,
-            //         color: ColorConstant.black)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Image.asset(ImageConstant.homeFilter),
+            ),
             const SizedBox(height: 20),
             Container(
               alignment: Alignment.center,
@@ -97,7 +98,7 @@ class _InternetConnectionCheckState extends State<InternetConnectionCheck> {
                         child: Text("Refresh",
                             style: TextStyle(
                                 fontSize: 16,
-                                color: ColorConstant.blue,
+                                color: ColorConstant.orange,
                                 decoration: TextDecoration.underline))),
                   ]),
             ),

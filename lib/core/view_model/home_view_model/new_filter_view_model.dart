@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 
 class NewFilterViewModel extends BaseModel {
   TextEditingController emailPhoneController = TextEditingController();
+  TextEditingController filterNameController = TextEditingController();
+  String invalidFilter = '';
   bool isValidForm = false;
   String invalidMailPhone = '';
   bool switchOff = false;

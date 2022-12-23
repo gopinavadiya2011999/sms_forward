@@ -16,7 +16,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("&&&&&&&&&&& ${widget.url}");
+    // print("&&&&&&&&&&& ${widget.url}");
   }
 
   @override

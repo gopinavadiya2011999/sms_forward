@@ -1,13 +1,12 @@
-import 'dart:isolate';
-import 'package:auto_forward_sms/core/routing/routes.dart';
+import 'package:auto_forward_sms/database_helper.dart';
 import 'package:auto_forward_sms/sms_model.dart';
 import 'package:auto_forward_sms/ui/view/home_view/home_view.dart';
-import 'package:flutter/foundation.dart';
 
-// import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:telephony/telephony.dart';
+import 'package:uuid/uuid.dart';
 
 import '../model/filter_list.dart';
+import '../utils/flutter_toast.dart';
 
 List<FilterList> filterLists = [];
 
@@ -25,37 +24,57 @@ onBackgroundMessage(SmsMessage sms) async {
   for (var element in allRows) {
     smsModel.add(SmsModel.fromMap(element));
   }
-  if (kDebugMode) {
-    print('Query done:: ${allRows.map((e) => e).toList()}');
-  }
+
+  // print('Query done:: ${allRows.map((e) => e).toList()}');
+
   filterLists.clear();
-  if (kDebugMode) {
-    print("^^^^^^^^^^^^FilterList:: ${filterLists.map((e) => e.text)}");
-    for (var element in smsModel) {
-      filterLists.add(FilterList(
-          index: element.smsId!,
-          text: element.text,
-          switchOn: element.switchOn == 1 ? true : false));
-    }
+
+  // print("^^^^^^^^^^^^FilterList:: ${filterLists.map((e) => e.text)}");
+  for (var element in smsModel) {
+    filterLists.add(FilterList(
+        index: element.smsId!,
+        otpSwitch: element.otpSwitch == 1 ? true : false,
+        filterName: element.filterName,
+        text: element.text,
+        smsSwitch: element.switchOn == 1 ? true : false));
   }
 
   filterLists =
-      filterLists.where((element) => element.switchOn == true).toList();
+      filterLists.where((element) => element.smsSwitch == true).toList();
   if (filterLists.isNotEmpty) {
     if (sms.body != null) {
-      if (kDebugMode) {
-        print(
-            "#####${sms.body}#####: ${filterLists.map((e) => e.text).toList().toSet()}");
-        print(
-            "#####${sms.body}#####: ${filterLists.map((e) => e.switchOn).toList().toSet()}");
-      }
+      /* print(
+          "#####${sms.body}#####: ${filterLists.map((e) => e.text).toList().toSet()}");
+      print(
+          "#####${sms.body}#####: ${filterLists.map((e) => e.smsSwitch).toList().toSet()}");
+*/
+      Uuid uuid = const Uuid();
 
       for (int i = 0; i < filterLists.length; i++) {
-        if (kDebugMode) {
-          print("***bg:: ${filterLists[i].text}");
+        if (!filterLists[i].otpSwitch &&
+            (sms.body!.contains("otp") ||
+                sms.body!.contains("Otp") ||
+                sms.body!.contains("oTp") ||
+                sms.body!.contains("otP") ||
+                sms.body!.contains("OTP"))) {
+          showBottomLongToast("Otp Content ");
+          // print("***fg if====:: ${filterLists[i].text}");
+        } else {
+          if (sms.address.toString() != filterLists[i].text) {
+            // print("*===**bfg else:: ${filterLists[i].text}");
+            await dbHelper.insertMessage(MessageModel.fromMap({
+              DatabaseHelper.msgId:
+                  uuid.v1() + DateTime.now().millisecondsSinceEpoch.toString(),
+              DatabaseHelper.msg: sms.body.toString(),
+              DatabaseHelper.fromWho: sms.address.toString(),
+              DatabaseHelper.dateTime:
+                  DateTime.now().millisecondsSinceEpoch.toString(),
+              DatabaseHelper.senderNo: filterLists[i].text.toString(),
+            }));
+            Telephony.backgroundInstance
+                .sendSms(to: filterLists[i].text!, message: sms.body!);
+          }
         }
-        Telephony.backgroundInstance
-            .sendSms(to: filterLists[i].text!, message: sms.body!);
       }
     }
   }

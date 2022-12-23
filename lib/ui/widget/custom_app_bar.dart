@@ -12,25 +12,26 @@ customAppBar(
     int? arrowHeight,
     int? arrowWidth,
     Widget? lastIcon,
+    required BuildContext context,
     GestureTapCallback? onHelpTap,
     bool noHelp = false}) {
   return Row(
     mainAxisAlignment:
-        center ? MainAxisAlignment.start : MainAxisAlignment.spaceBetween,
+        center ? MainAxisAlignment.start : MainAxisAlignment.start,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       GestureDetector(
           onTap: onFirstIconTap,
           child: whiteShadowButton(
               icon: icon, height: arrowHeight ?? 15, width: arrowWidth ?? 17)),
-      if (center) const SizedBox(width: 28),
-      Text(middleText, style: TextStyleConstant.titleStyle),
-      if (!noHelp)
-        inkWell(
-            onTap: onHelpTap,
-            child: Image.asset(IconConstant.help,
-                cacheHeight: 30, cacheWidth: 30)),
-      if (lastIcon != null) lastIcon
+      const SizedBox(width: 28),
+      Expanded(child: Text(middleText, style: TextStyleConstant.titleStyle)),
+      // if (!noHelp)
+      //   inkWell(
+      //       onTap: onHelpTap,
+      //       child: Image.asset(IconConstant.help,
+      //           cacheHeight: 30, cacheWidth: 30)),
+      // if (lastIcon != null) lastIcon
     ],
   );
 }
