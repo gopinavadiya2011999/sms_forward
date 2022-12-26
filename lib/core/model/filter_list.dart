@@ -7,10 +7,13 @@ class FilterList {
   bool otpSwitch = false;
   int index = 0;
 
+  String countryCode;
+
   FilterList(
       {this.text,
       this.smsSwitch = false,
       this.filterName,
+      required this.countryCode,
       this.otpSwitch = false,
       this.index = 0});
 
@@ -21,6 +24,7 @@ class FilterList {
       filterName: jsonData['filterName'],
       otpSwitch: jsonData['otpSwitch'],
       index: jsonData['index'],
+      countryCode: jsonData['countryCode'],
     );
   }
 
@@ -30,6 +34,7 @@ class FilterList {
         'filterName': music.filterName,
         'otpSwitch': music.otpSwitch,
         'index': music.index,
+        'countryCode': music.countryCode,
       };
 
   static String encode(List<FilterList> musics) => json.encode(

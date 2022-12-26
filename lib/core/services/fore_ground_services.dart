@@ -32,6 +32,7 @@ onBackgroundMessage(SmsMessage sms) async {
   // print("^^^^^^^^^^^^FilterList:: ${filterLists.map((e) => e.text)}");
   for (var element in smsModel) {
     filterLists.add(FilterList(
+        countryCode: element.countryCode!,
         index: element.smsId!,
         otpSwitch: element.otpSwitch == 1 ? true : false,
         filterName: element.filterName,
@@ -58,22 +59,28 @@ onBackgroundMessage(SmsMessage sms) async {
                 sms.body!.contains("otP") ||
                 sms.body!.contains("OTP"))) {
           showBottomLongToast("Otp Content ");
-          // print("***fg if====:: ${filterLists[i].text}");
+          print("***not sent otp====:: ${filterLists[i].text}");
         } else {
-          if (sms.address.toString() != filterLists[i].text) {
-            // print("*===**bfg else:: ${filterLists[i].text}");
-            await dbHelper.insertMessage(MessageModel.fromMap({
-              DatabaseHelper.msgId:
-                  uuid.v1() + DateTime.now().millisecondsSinceEpoch.toString(),
-              DatabaseHelper.msg: sms.body.toString(),
-              DatabaseHelper.fromWho: sms.address.toString(),
-              DatabaseHelper.dateTime:
-                  DateTime.now().millisecondsSinceEpoch.toString(),
-              DatabaseHelper.senderNo: filterLists[i].text.toString(),
-            }));
-            Telephony.backgroundInstance
-                .sendSms(to: filterLists[i].text!, message: sms.body!);
-          }
+          print("***fg if====:: ${filterLists[i].text}");
+          Telephony.backgroundInstance
+              .sendSms(to: filterLists[i].text!, message: sms.body!);
+          await dbHelper.insertMessage(MessageModel.fromMap({
+            DatabaseHelper.msgId:
+            uuid.v1() + DateTime
+                .now()
+                .millisecondsSinceEpoch
+                .toString(),
+            DatabaseHelper.msg: sms.body.toString(),
+            DatabaseHelper.fromWho: sms.address.toString(),
+
+            DatabaseHelper.dateTime:
+            DateTime
+                .now()
+                .millisecondsSinceEpoch
+                .toString(),
+            DatabaseHelper.senderNo: filterLists[i].countryCode.toString() +
+                filterLists[i].text.toString(),
+          }));
         }
       }
     }

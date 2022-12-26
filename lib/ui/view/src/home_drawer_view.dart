@@ -5,10 +5,14 @@ import 'package:auto_forward_sms/core/localization/app_localization.dart';
 import 'package:auto_forward_sms/core/model/drawer_list.dart';
 import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/core/utils/utils.dart';
+import 'package:auto_forward_sms/main.dart';
 import 'package:auto_forward_sms/ui/view/src/developer_commet_dialog.dart';
 import 'package:auto_forward_sms/ui/widget/custom_divider.dart';
 import 'package:auto_forward_sms/ui/widget/inkwell.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_number/mobile_number.dart';
+import 'package:open_settings/open_settings.dart';
+import 'package:telephony/telephony.dart';
 
 class HomeDrawerView extends StatelessWidget {
   final Function stateFunction;
@@ -58,7 +62,7 @@ class HomeDrawerView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       inkWell(
-                          onTap: () {
+                          onTap: () async {
                             for (int i = 0; i < drawerList.length; i++) {
                               if (drawerList[i].isSelected == true) {
                                 drawerList[i].isSelected = false;
@@ -78,6 +82,27 @@ class HomeDrawerView extends StatelessWidget {
                               Navigator.pushNamed(context, Routes.webView,
                                   arguments:
                                       'https://sites.google.com/view/lazy-squirrel-privacy/home');
+                            }
+                            if (drawerList[index].text ==
+                                "Change Sim Settings") {
+                              final List<SimCard>? simCards =
+                                  await MobileNumber.getSimCards;
+
+                              print(
+                                  "%%%%%%%% ${simCards!.map((e) => e.number)}");
+
+                              // OpenSettings.openNetworkOperatorSetting()
+                              //     .then((value) async {
+                              //   final List<
+                              //       SimCard>? simCards = await MobileNumber
+                              //       .getSimCards;
+                              //
+                              //   print(
+                              //       "%%%%%%%% ${simCards!.map((e) =>
+                              //       e.number)}");
+                              //
+                              //   // box.write('sim', simCards.first.number);
+                              // });
                             }
 
                             if (drawerList.length - 1 == index) {

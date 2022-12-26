@@ -10,7 +10,8 @@ import 'package:auto_forward_sms/sms_model.dart';
 import 'package:auto_forward_sms/ui/view/home_view/home_view.dart';
 import 'package:auto_forward_sms/ui/widget/inkwell.dart';
 import 'package:flutter/material.dart';
-import 'package:yodo1mas/testmasfluttersdktwo.dart';
+
+// import 'package:yodo1mas/testmasfluttersdktwo.dart';
 import '../../../core/constant/icon_constant.dart';
 import '../../../core/constant/text_style_constant.dart';
 import '../../widget/white_square_button.dart';
@@ -64,9 +65,9 @@ class _MessageHistoryViewState extends State<MessageHistoryView> {
           onWillPop: () async {
             bool? adsOpen = CommonHelper.interstitialAds();
 
-            if (adsOpen == null || adsOpen) {
-              Yodo1MAS.instance.showInterstitialAd();
-            }
+            // if (adsOpen == null || adsOpen) {
+            //   Yodo1MAS.instance.showInterstitialAd();
+            // }
             return true;
           },
           child: Scaffold(
@@ -138,11 +139,11 @@ class _MessageHistoryViewState extends State<MessageHistoryView> {
                 element.senderNo == widget.filterList!.text.toString())
             .toList();
 
-        Yodo1MAS.instance.init(
-            "jopV935IZE",
-            true,
-            (successful) =>
-                print("@@@@@@@@@@@@@@@@successs  ${successful.toString()}"));
+        // Yodo1MAS.instance.init(
+        //     "jopV935IZE",
+        //     true,
+        //     (successful) =>
+        //         print("@@@@@@@@@@@@@@@@successs  ${successful.toString()}"));
       },
     );
   }
@@ -156,7 +157,7 @@ class _MessageHistoryViewState extends State<MessageHistoryView> {
             onTap: () {
               bool? adsOpen = CommonHelper.interstitialAds();
               if (adsOpen == null || adsOpen) {
-                Yodo1MAS.instance.showInterstitialAd();
+                // Yodo1MAS.instance.showInterstitialAd();
                 isDelete = false;
                 deleteTap = false;
                 setState(() {});
@@ -266,7 +267,7 @@ class _MessageHistoryViewState extends State<MessageHistoryView> {
         itemBuilder: (context, index) {
           return Column(
             children: [
-              if (index == 0) bannerAds(),
+              // if (index == 0) bannerAds(),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 padding: const EdgeInsets.all(10),
@@ -358,19 +359,19 @@ class _MessageHistoryViewState extends State<MessageHistoryView> {
                   ],
                 ),
               ),
-              if (index ==
-                      messageModel
-                              .where((element) =>
-                                  element.senderNo == widget.filterList!.text)
-                              .length -
-                          1 ||
-                  index + 1 ==
-                      (messageModel
-                              .where((element) =>
-                                  element.senderNo == widget.filterList!.text)
-                              .length ~/
-                          2))
-                bannerAds()
+              // if (index ==
+              //         messageModel
+              //                 .where((element) =>
+              //                     element.senderNo == widget.filterList!.text)
+              //                 .length -
+              //             1 ||
+              //     index + 1 ==
+              //         (messageModel
+              //                 .where((element) =>
+              //                     element.senderNo == widget.filterList!.text)
+              //                 .length ~/
+              //             2))
+              //   bannerAds()
             ],
           );
         },
@@ -496,15 +497,15 @@ class _MessageHistoryViewState extends State<MessageHistoryView> {
       },
     );
   }
-
-  bannerAds() {
-    return Yodo1MASBannerAd(
-      size: BannerSize.Banner,
-      onLoad: () => print('Banner loaded:'),
-      onOpen: () => print('Banner clicked:'),
-      onClosed: () => print('Banner clicked:'),
-      onLoadFailed: (message) => print('Banner Ad $message'),
-      onOpenFailed: (message) => print('Banner Ad $message'),
-    );
-  }
+//
+// bannerAds() {
+//   return Yodo1MASBannerAd(
+//     size: BannerSize.Banner,
+//     onLoad: () => print('Banner loaded:'),
+//     onOpen: () => print('Banner clicked:'),
+//     onClosed: () => print('Banner clicked:'),
+//     onLoadFailed: (message) => print('Banner Ad $message'),
+//     onOpenFailed: (message) => print('Banner Ad $message'),
+//   );
+// }
 }

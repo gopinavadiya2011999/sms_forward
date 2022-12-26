@@ -6,17 +6,19 @@ class SmsModel {
   int? switchOn = 0;
   int? otpSwitch = 0;
   String? filterName;
+  String? countryCode;
 
   // List<MessageModel>? messageList;
 
-  SmsModel({
-    this.smsId,
-    this.text,
-    this.switchOn = 0,
-    this.otpSwitch = 0,
-    this.filterName,
-    /* this.messageList*/
-  });
+  SmsModel(
+      {this.smsId,
+      this.text,
+      this.switchOn = 0,
+      this.otpSwitch = 0,
+      this.filterName,
+      this.countryCode
+      /* this.messageList*/
+      });
 
   SmsModel.fromMap(Map<String, dynamic> map) {
     smsId = map['smsId'];
@@ -24,6 +26,7 @@ class SmsModel {
     switchOn = map['switchOn'];
     filterName = map['filterName'];
     otpSwitch = map['otpSwitch'];
+    countryCode = map['countryCode'];
     //   if (map['messageList'] != null) {
     //     messageList = <MessageModel>[];
     //     map['messageList'].forEach((v) {
@@ -39,7 +42,8 @@ class SmsModel {
       DatabaseHelper.text: text,
       DatabaseHelper.switchOn: switchOn,
       DatabaseHelper.filterName: filterName,
-      DatabaseHelper.otpSwitch: otpSwitch
+      DatabaseHelper.otpSwitch: otpSwitch,
+      DatabaseHelper.countryCode: countryCode
     };
   }
 }

@@ -5,9 +5,14 @@ import 'package:auto_forward_sms/core/localization/app_localization.dart';
 import 'package:auto_forward_sms/core/routing/routes.dart';
 import 'package:auto_forward_sms/core/utils/common_helper.dart';
 import 'package:auto_forward_sms/core/utils/dismiss_keyboard.dart';
+import 'package:auto_forward_sms/core/utils/flutter_toast.dart';
 import 'package:auto_forward_sms/core/utils/utils.dart';
 import 'package:auto_forward_sms/core/view_model/base_view.dart';
 import 'package:auto_forward_sms/core/view_model/home_view_model/new_filter_view_model.dart';
+import 'package:auto_forward_sms/main.dart';
+import 'package:auto_forward_sms/region.dart';
+import 'package:auto_forward_sms/region_picker.dart';
+import 'package:auto_forward_sms/store.dart';
 import 'package:auto_forward_sms/ui/check_network/check_network.dart';
 import 'package:auto_forward_sms/ui/widget/custom_app_bar.dart';
 import 'package:auto_forward_sms/ui/widget/custom_orange_button.dart';
@@ -18,7 +23,11 @@ import 'package:auto_forward_sms/ui/widget/inkwell.dart';
 import 'package:auto_forward_sms/ui/widget/rounded_floating_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:yodo1mas/testmasfluttersdktwo.dart';
+import 'package:mobile_number/mobile_number.dart';
+import 'package:open_settings/open_settings.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:phone_number/phone_number.dart';
+// import 'package:yodo1mas/testmasfluttersdktwo.dart';
 
 class NewFilterView extends StatefulWidget {
   final SmsForwardRoute smsForwardRoute;
@@ -41,6 +50,7 @@ class _NewFilterViewState extends State<NewFilterView> {
     if (widget.smsForwardRoute.phone.isEmpty) {
       model.invalidMailPhone = '';
       model.invalidFilter = '';
+      model.countryCodeController.clear();
       model.emailPhoneController.clear();
       model.filterNameController.clear();
     }
@@ -56,7 +66,7 @@ class _NewFilterViewState extends State<NewFilterView> {
               bool? adsOpen = CommonHelper.interstitialAds();
 
               if (adsOpen == null || adsOpen) {
-                Yodo1MAS.instance.showInterstitialAd();
+                // Yodo1MAS.instance.showInterstitialAd();
               }
               return true;
             },
@@ -135,14 +145,14 @@ class _NewFilterViewState extends State<NewFilterView> {
                                               : 20,
                                       paddingV: 15)),
                               const SizedBox(height: 20),
-                              Yodo1MASNativeAd(
-                                size: NativeSize.NativeLarge,
-                                backgroundColor: "BLACK",
-                                onLoad: () => print('Native Ad loaded:'),
-                                onClosed: () => print('Native Ad clicked:'),
-                                onLoadFailed: (message) =>
-                                    print('Native Ad $message'),
-                              ),
+                              // Yodo1MASNativeAd(
+                              //   size: NativeSize.NativeLarge,
+                              //   backgroundColor: "BLACK",
+                              //   onLoad: () => print('Native Ad loaded:'),
+                              //   onClosed: () => print('Native Ad clicked:'),
+                              //   onLoadFailed: (message) =>
+                              //       print('Native Ad $message'),
+                              // ),
                             ],
                           ),
                         ),
@@ -154,21 +164,29 @@ class _NewFilterViewState extends State<NewFilterView> {
             ),
           );
         },
-        onModelReady: (model) {
+        onModelReady: (model) async {
           this.model = model;
+          simCards = await MobileNumber.getSimCards;
+          print(" simCards!.first.number +++${simCards!.map((e) => e.number)}");
+
+          getRegion();
           model.emailPhoneController.text = widget.smsForwardRoute.phone.trim();
+          model.countryCodeController.text =
+              widget.smsForwardRoute.countryCode.trim();
           model.filterNameController.text =
               widget.smsForwardRoute.filterName.trim();
           model.switchOff = widget.smsForwardRoute.otpSwitch;
-          Yodo1MAS.instance.init(
-              "jopV935IZE",
-              true,
-              (successful) =>
-                  print("@@@@@@@@@@@@@@@@successs  ${successful.toString()}"));
+          // Yodo1MAS.instance.init(
+          //     "jopV935IZE",
+          //     true,
+          //     (successful) =>
+          //         print("@@@@@@@@@@@@@@@@successs  ${successful.toString()}"));
         },
       ),
     );
   }
+
+  List<SimCard>? simCards = [];
 
   _floatingBtn() {
     return customRoundFloatingBtn(
@@ -189,15 +207,72 @@ class _NewFilterViewState extends State<NewFilterView> {
         bool? adsOpen = CommonHelper.interstitialAds();
 
         if (adsOpen == null || adsOpen) {
-          Yodo1MAS.instance.showInterstitialAd();
+          // Yodo1MAS.instance.showInterstitialAd();
           Navigator.pop(context);
         }
       },
     );
   }
 
+  //Choose Region Method
+  Region? region;
+
+  final store = Store(PhoneNumberUtil());
+
+  Future<void> chooseRegions() async {
+    dismissKeyboard(context);
+
+    final regions = await store.getRegions();
+
+    final route = MaterialPageRoute<Region>(
+      fullscreenDialog: true,
+      builder: (_) => RegionPicker(regions: regions),
+    );
+
+    final selectedRegion = await Navigator.of(context).push<Region>(route);
+
+    if (selectedRegion != null) {
+      model.countryCodeController.text = "+${selectedRegion.prefix}";
+      setState(() => region = selectedRegion);
+    }
+  }
+
+  getRegion() async {
+    String code = "+91";
+    model.countryCodeController.text = '+91';
+
+    final regions = await store.getRegions();
+
+    regions.forEach((element) {
+      if (element.prefix == code.replaceAll("+", "")) {
+        region = element;
+      }
+    });
+  }
+
   _textField() {
     return customTextField(
+        countryPrefix: inkWell(
+          onTap: chooseRegions,
+          child: IgnorePointer(
+            child: TextFormField(
+              onChanged: (value) {},
+              style: TextStyleConstant.skipStyle
+                  .merge(TextStyle(color: ColorConstant.black22)),
+              textAlign: TextAlign.center,
+              controller: model.countryCodeController,
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintStyle: TextStyleConstant.skipStyle
+                    .merge(TextStyle(color: ColorConstant.black22)),
+                hintText: model.countryCodeController.text.isEmpty
+                    ? "+91 "
+                    : "${model.countryCodeController.text} ",
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ),
+        ),
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r"[+0-9]")),
         ],
@@ -207,7 +282,7 @@ class _NewFilterViewState extends State<NewFilterView> {
           if (value!.isEmpty) {
             model.invalidMailPhone =
                 AppLocalizations.of(context).translate('enter_phone_val');
-          } else if (value.length < 8 || value.length > 15) {
+          } else if (value.length < 8 || value.length > 12) {
             model.invalidMailPhone = "Please enter valid mobile number";
           }
 
@@ -273,19 +348,56 @@ class _NewFilterViewState extends State<NewFilterView> {
       bool? adsOpen = CommonHelper.interstitialAds();
 
       if (adsOpen == null || adsOpen) {
-        Yodo1MAS.instance.showInterstitialAd();
-        if (model.emailPhoneController.text.trim() !=
-                widget.smsForwardRoute.phone.trim() ||
-            model.filterNameController.text.trim() !=
-                widget.smsForwardRoute.filterName.trim() ||
-            model.switchOff != widget.smsForwardRoute.otpSwitch) {
-          Navigator.pop(context, [
-            model.emailPhoneController.text.trim(),
-            model.filterNameController.text.trim(),
-            model.switchOff
-          ]);
+        //Yodo1MAS.instance.showInterstitialAd();
+
+        if (simCards!.isNotEmpty) {
+          String simCardNo = simCards!.first.number.toString();
+          if (model.countryCodeController.text.isEmpty) {
+            model.countryCodeController.text = "+91";
+            setState(() {});
+          }
+
+          //917096968574
+          // +918980225073
+          print(
+              "simcard:: ${simCardNo} || ${model.countryCodeController.text} || ${model.countryCodeController.text.replaceAll("+", '')}");
+          if (("+$simCardNo") ==
+                  (model.countryCodeController.text.isNotEmpty
+                          ? model.countryCodeController.text
+                          : "+91") +
+                      model.emailPhoneController.text ||
+              simCardNo == model.emailPhoneController.text ||
+              simCardNo ==
+                  (model.countryCodeController.text.isNotEmpty
+                          ? model.countryCodeController.text.replaceAll("+", '')
+                          : "91") +
+                      model.emailPhoneController.text ||
+              ("${model.countryCodeController.text}$simCardNo") ==
+                  (model.countryCodeController.text.isNotEmpty
+                          ? model.countryCodeController.text
+                          : "+91") +
+                      model.emailPhoneController.text) {
+            showBottomLongToast("Please don't enter your sim number");
+          } else {}
         } else {
-          Navigator.pop(context);
+          if (model.emailPhoneController.text.trim() !=
+                  widget.smsForwardRoute.phone.trim() ||
+              model.countryCodeController.text.trim() !=
+                  widget.smsForwardRoute.countryCode.trim() ||
+              model.filterNameController.text.trim() !=
+                  widget.smsForwardRoute.filterName.trim() ||
+              model.switchOff != widget.smsForwardRoute.otpSwitch) {
+            Navigator.pop(context, [
+              model.emailPhoneController.text.trim(),
+              model.filterNameController.text.trim(),
+              model.countryCodeController.text.isNotEmpty
+                  ? model.countryCodeController.text.trim()
+                  : "+91",
+              model.switchOff
+            ]);
+          } else {
+            Navigator.pop(context);
+          }
         }
       }
     } else {
@@ -301,7 +413,11 @@ class SmsForwardRoute {
   final String phone;
   final String filterName;
   final bool otpSwitch;
+  final String countryCode;
 
   SmsForwardRoute(
-      {required this.otpSwitch, required this.phone, required this.filterName});
+      {required this.otpSwitch,
+      required this.phone,
+      required this.filterName,
+      required this.countryCode});
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:yodo1mas/testmasfluttersdktwo.dart';
+// import 'package:yodo1mas/testmasfluttersdktwo.dart';
 
 class CommonHelper {
   static String readTimestamp(int timestamp) {
@@ -30,26 +30,26 @@ class CommonHelper {
     bool? adsOpen;
 
     //  Timer.periodic(const Duration(seconds: 5), (timer) {
-    Yodo1MAS.instance.setInterstitialListener((event, message) async {
-      switch (event) {
-        case Yodo1MAS.AD_EVENT_OPENED:
-          adsOpen = true;
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-              overlays: []);
-          print('Interstitial AD_EVENT_OPENED');
-          break;
-        case Yodo1MAS.AD_EVENT_ERROR:
-          adsOpen = false;
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-          print('Interstitial AD_EVENT_ERROR$message');
-          break;
-        case Yodo1MAS.AD_EVENT_CLOSED:
-          print('Interstitial AD_EVENT_CLOSED');
-          adsOpen = false;
-          SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-          break;
-      }
-    });
+    // Yodo1MAS.instance.setInterstitialListener((event, message) async {
+    //   switch (event) {
+    //     case Yodo1MAS.AD_EVENT_OPENED:
+    //       adsOpen = true;
+    //       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+    //           overlays: []);
+    //       print('Interstitial AD_EVENT_OPENED');
+    //       break;
+    //     case Yodo1MAS.AD_EVENT_ERROR:
+    //       adsOpen = false;
+    //       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    //       print('Interstitial AD_EVENT_ERROR$message');
+    //       break;
+    //     case Yodo1MAS.AD_EVENT_CLOSED:
+    //       print('Interstitial AD_EVENT_CLOSED');
+    //       adsOpen = false;
+    //       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    //       break;
+    //   }
+    // });
     // });
     return adsOpen;
   }

@@ -12,8 +12,8 @@ import 'package:auto_forward_sms/core/view_model/base_view.dart';
 import 'package:auto_forward_sms/database_helper.dart';
 import 'package:auto_forward_sms/ui/view/home_view/message_history_view.dart';
 import 'package:auto_forward_sms/ui/widget/inkwell.dart';
+import 'package:mobile_number/mobile_number.dart';
 import 'package:uuid/uuid.dart';
-import 'package:auto_forward_sms/main.dart';
 import 'package:auto_forward_sms/sms_model.dart';
 import 'package:auto_forward_sms/ui/view/home_view/new_filter.dart';
 import 'package:auto_forward_sms/ui/view/src/home_drawer_view.dart';
@@ -65,7 +65,8 @@ class _HomeViewState extends State<HomeView> {
       required String filterName,
       required bool smsSwitch,
       required bool otpSwitch,
-      required int index}) async {
+      required int index,
+      required String countryCode}) async {
     int smsSwitchInt = convertBoolToInt(switchOn: smsSwitch);
     int otpSwitchInt = convertBoolToInt(switchOn: otpSwitch);
 
@@ -74,7 +75,8 @@ class _HomeViewState extends State<HomeView> {
       DatabaseHelper.text: text,
       DatabaseHelper.filterName: filterName,
       DatabaseHelper.otpSwitch: otpSwitchInt,
-      DatabaseHelper.switchOn: smsSwitchInt
+      DatabaseHelper.switchOn: smsSwitchInt,
+      DatabaseHelper.countryCode: countryCode
     };
     SmsModel smsModel = SmsModel.fromMap(row);
     await dbHelper.insert(smsModel);
@@ -103,6 +105,7 @@ class _HomeViewState extends State<HomeView> {
       {required int id,
       required String text,
       required String filterName,
+      required String countryCode,
       required bool smsSwitch,
       required bool otpSwitch}) async {
     int smsSwitchInt = convertBoolToInt(switchOn: smsSwitch);
@@ -113,6 +116,7 @@ class _HomeViewState extends State<HomeView> {
         otpSwitch: otpSwitchInt,
         smsId: id,
         text: text,
+        countryCode: countryCode,
         switchOn: smsSwitchInt);
     await dbHelper.update(smsModel);
     setState(() {});
@@ -123,12 +127,14 @@ class _HomeViewState extends State<HomeView> {
       required String text,
       required String filterName,
       required bool smsSwitch,
+      required String countryCode,
       required bool otpSwitch}) async {
     int smsSwitchInt = convertBoolToInt(switchOn: smsSwitch);
     int otpSwitchInt = convertBoolToInt(switchOn: otpSwitch);
 
     SmsModel smsModel = SmsModel(
         smsId: id,
+        countryCode: countryCode,
         text: text,
         switchOn: smsSwitchInt,
         otpSwitch: otpSwitchInt,
@@ -155,14 +161,17 @@ class _HomeViewState extends State<HomeView> {
   initPlatformState() async {
     permissionsGranted =
         await model.telephony.requestPhoneAndSmsPermissions ?? false;
-    if (permissionsGranted != null && permissionsGranted == true) {
+    phoneAccess = await MobileNumber.hasPhonePermission;
+    if (permissionsGranted != null &&
+        permissionsGranted == true &&
+        phoneAccess != null &&
+        phoneAccess == true) {
       model.telephony.listenIncomingSms(
           onNewMessage: (message) async {
             print("message address :: ${message.address}");
             print("message body:: ${message.body}");
 
-            print("message body:: ${message.body}");
-
+            simCards = await MobileNumber.getSimCards;
             List<FilterList> filterListData = [];
             await queryAll();
             for (var element in smsModel) {
@@ -171,7 +180,8 @@ class _HomeViewState extends State<HomeView> {
                   index: element.smsId!,
                   filterName: element.filterName!,
                   otpSwitch: element.otpSwitch == 1 ? true : false,
-                  smsSwitch: element.switchOn == 1 ? true : false));
+                  smsSwitch: element.switchOn == 1 ? true : false,
+                  countryCode: element.countryCode!));
             }
             setState(() {});
 
@@ -186,38 +196,30 @@ class _HomeViewState extends State<HomeView> {
             Uuid uuid = const Uuid();
             if (message.body != null) {
               for (int i = 0; i < filterListData.length; i++) {
-                // messageData.add(MessageModel(
-                //   msgId: uuid.v1()+DateTime.now().timeZoneOffset.toString(),
-                //   msg: message.body,
-                //   dateTime: DateTime.now().timeZoneOffset.toString(),
-                //     fromWho:message.address,
-                // ));
-
                 if (!filterListData[i].otpSwitch &&
                     (message.body!.contains("otp") ||
                         message.body!.contains("Otp") ||
                         message.body!.contains("oTp") ||
                         message.body!.contains("otP") ||
                         message.body!.contains("OTP"))) {
-                  // print("if fbg${message.body!}:: ${filterListData[i].text}");
-
-                } else {
-                  // print("***fg ${message.body!}:: ${filterListData[i].text}");
                   print(
-                      "^^^${message.address.toString()}^^${filterListData[i].text}^^ ${message.address.toString() != filterListData[i].text}");
-                  if (message.address.toString() != filterListData[i].text) {
-                    _insertSms(
-                        senderNo: filterListData[i].text.toString(),
-                        smsId: uuid.v1() +
-                            DateTime.now().millisecondsSinceEpoch.toString(),
-                        msg: message.body.toString(),
-                        dateTime:
-                            DateTime.now().millisecondsSinceEpoch.toString(),
-                        fromWho: message.address.toString());
-                    model.telephony.sendSms(
-                        to: filterListData[i].text!, message: message.body!);
-                    showBottomLongToast("SMS forwarded successfully !!");
-                  }
+                      "if not sent otp fbg${message.body!}:: ${filterListData[i].text}");
+                } else {
+                  print(
+                      "else ==***fg ${message.body!}:: ${filterListData[i].text}");
+                  model.telephony.sendSms(
+                      to: filterListData[i].text!, message: message.body!);
+                  _insertSms(
+                      senderNo: filterListData[i].countryCode.toString() +
+                          filterListData[i].text.toString(),
+                      smsId: uuid.v1() +
+                          DateTime.now().millisecondsSinceEpoch.toString(),
+                      msg: message.body.toString(),
+                      dateTime:
+                          DateTime.now().millisecondsSinceEpoch.toString(),
+                      fromWho: message.address.toString());
+
+                  showBottomLongToast("SMS forwarded successfully !!");
                 }
               }
 
@@ -247,11 +249,12 @@ class _HomeViewState extends State<HomeView> {
       },
       onModelReady: (model) async {
         this.model = model;
-        permissionsGranted = box.read('granted') ?? false;
         await getPrefList();
       },
     );
   }
+
+  List<SimCard>? simCards = [];
 
   _bodyView() {
     return SafeArea(
@@ -297,6 +300,7 @@ class _HomeViewState extends State<HomeView> {
     await queryAll();
     for (var element in smsModel) {
       filterList.add(FilterList(
+          countryCode: element.countryCode.toString(),
           index: element.smsId!,
           text: element.text,
           filterName: element.filterName,
@@ -316,6 +320,7 @@ class _HomeViewState extends State<HomeView> {
                       filterList: filterList,
                       deleteFilter: ({BuildContext? context}) {
                         _delete(
+                            countryCode: filterList.countryCode,
                             id: filterList.index,
                             text: filterList.text.toString(),
                             smsSwitch: filterList.smsSwitch,
@@ -326,7 +331,7 @@ class _HomeViewState extends State<HomeView> {
                         showBottomLongToast(
                             "Deleted ${filterList.text.toString()} successfully !!");
                         Navigator.pop(context!);
-                        Navigator.pop(context!);
+                        Navigator.pop(context);
                       },
                       editTap: () {
                         _onEditTap(filterList: filterList);
@@ -348,6 +353,7 @@ class _HomeViewState extends State<HomeView> {
               index: index,
               onPressed: (context) async {
                 _delete(
+                    countryCode: filterList.countryCode,
                     id: filterList.index,
                     text: filterList.text.toString(),
                     smsSwitch: filterList.smsSwitch,
@@ -379,6 +385,7 @@ class _HomeViewState extends State<HomeView> {
                 filterList.smsSwitch = value;
                 setState(() {});
                 _update(
+                    countryCode: filterList.countryCode,
                     id: filterList.index,
                     filterName: filterList.filterName ?? "",
                     otpSwitch: filterList.otpSwitch,
@@ -410,13 +417,14 @@ class _HomeViewState extends State<HomeView> {
                       style: TextStyleConstant.grey18.copyWith(
                           color: ColorConstant.black22,
                           fontWeight: FontWeight.w500)),
-                  Text(filterList.text ?? "",
+                  Text(
+                      filterList.countryCode.toString() +
+                          filterList.text.toString(),
                       style: TextStyleConstant.skipStyle
                           .copyWith(color: ColorConstant.black22)),
                 ],
               ),
             ),
-            //Text(filterList.otpSwitch.toString()),
             Container(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.only(
@@ -427,13 +435,6 @@ class _HomeViewState extends State<HomeView> {
               height: double.infinity,
               width: 10,
             )
-            // inkWell(
-            //     onTap: () {
-            //       // Slidable.of(context)?.enableEndActionPane;
-            //       // // filterList.slide = !filterList.slide;
-            //       // setState(() {});
-            //     },
-            //     child: const Icon(Icons.more_vert)),
           ]),
         ),
       ),
@@ -441,112 +442,41 @@ class _HomeViewState extends State<HomeView> {
   }
 
   PermissionStatus? status;
+  PermissionStatus? status1;
+  bool? phoneAccess;
 
   _floatingBtn() {
     return customRoundFloatingBtn(
         context: context,
         onPressed: () async {
-          // Uuid uuid = const Uuid();
-          // _insertSms(
-          //     senderNo: '8980225073',
-          //     smsId:
-          //         uuid.v1() + DateTime.now().millisecondsSinceEpoch.toString(),
-          //     msg: 'ffhjjj test msg ',
-          //     dateTime: DateTime.now().millisecondsSinceEpoch.toString(),
-          //     fromWho: "yyyuyu");
-
-          // status = await Permission.sms.status;
-          // switch (status) {
-          //   case PermissionStatus.granted:
-          //     box.write('granted', true);
-          //
-          //     redirectToFilterScreen();
-          //     break;
-          //   case PermissionStatus.denied:
-          //     status = await Permission.sms.request();
-          //
-          //     if (status!.isDenied) {
-          //       box.write('granted', false);
-          //       await openAppSettings();
-          //
-          //       if (status!.isGranted) {
-          //         box.write('granted', true);
-          //
-          //         redirectToFilterScreen();
-          //       }
-          //     }
-          //     if (status!.isPermanentlyDenied) {
-          //       await openAppSettings();
-          //       if (status == PermissionStatus.granted) {
-          //         box.write('granted', true);
-          //         redirectToFilterScreen();
-          //       } else {
-          //         box.write('3', false);
-          //       }
-          //     }
-          //     break;
-          //   default:
-          // }
-          if (permissionsGranted != null &&
-              (status == PermissionStatus.granted ||
-                  permissionsGranted == true)) {
+          status = await Permission.sms.request();
+          status1 = await Permission.phone.request();
+          if (status == PermissionStatus.granted &&
+              status1 == PermissionStatus.granted) {
+            permissionsGranted = true;
+            phoneAccess = true;
+            setState(() {});
             redirectToFilterScreen();
           } else {
-            //     showDialog(
-            //       context: context,
-            //       builder: (context) => smsPermissionDialog(okTap: () async {
-            //         Navigator.pop(context);
-            //         status = await Permission.sms.request();
-            //         if (status != null && status!.isGranted) {
-            //           redirectToFilterScreen();
-            //         } else {
-            status = await Permission.sms.status;
-            switch (status) {
-              case PermissionStatus.granted:
-                box.write('granted', true);
-
+            if (phoneAccess == true && permissionsGranted == true) {
+              redirectToFilterScreen();
+            } else {
+              if (permissionsGranted == true && phoneAccess == true) {
                 redirectToFilterScreen();
-                break;
-              case PermissionStatus.denied:
-                status = await Permission.sms.request();
-
-                if (status!.isDenied) {
-                  box.write('granted', false);
-                  await openAppSettings();
-
-                  if (status!.isGranted) {
-                    box.write('granted', true);
-
-                    redirectToFilterScreen();
-                  }
-                }
-                if (status!.isPermanentlyDenied) {
-                  await openAppSettings();
-                  if (status == PermissionStatus.granted) {
-                    box.write('granted', true);
-                  } else {
-                    box.write('3', false);
-                  }
-                }
-                break;
-              default:
+              } else {
+                await noPermission();
+              }
             }
           }
-        }
-        //       }, cancelTap: () {
-        //         Navigator.pop(context);
-        //       }),
-        );
+        });
   }
-
-  //  });
 
   int index = 1;
 
   redirectToFilterScreen() {
     Navigator.pushNamed(context, Routes.newFilter,
-            arguments:
-                SmsForwardRoute(phone: '', filterName: '', otpSwitch: false))
+            arguments: SmsForwardRoute(
+                phone: '', filterName: '', otpSwitch: false, countryCode: ''))
         .then((value) async {
       if (value != null) {
         List<String> data = value.toString().split(',');
@@ -554,13 +484,16 @@ class _HomeViewState extends State<HomeView> {
         bool? checkValidation = checkSameNo(
             value: data.first.replaceAll("[", '').toString(), index: index);
         if (checkValidation != null && !checkValidation) {
+          print("********* ${data.contains('+').toString()}");
           _insert(
               text: data.first.replaceAll("[", ''),
               filterName: data[1].toString(),
+              countryCode: data[2].toString(),
               smsSwitch: filterList.isNotEmpty ? false : true,
               otpSwitch: data.last.toString().contains('true') ? true : false,
               index: filterList.isNotEmpty ? filterList.last.index + 1 : index);
           filterList.add(FilterList(
+              countryCode: data[2].toString(),
               text: data.first.replaceAll("[", ''),
               filterName: data[1].toString(),
               smsSwitch: filterList.isNotEmpty ? false : true,
@@ -641,6 +574,7 @@ class _HomeViewState extends State<HomeView> {
   void _onEditTap({required FilterList filterList}) {
     Navigator.pushNamed(context, Routes.newFilter,
             arguments: SmsForwardRoute(
+                countryCode: filterList.countryCode,
                 otpSwitch: filterList.otpSwitch,
                 phone: filterList.text!,
                 filterName: filterList.filterName ?? ""))
@@ -652,25 +586,26 @@ class _HomeViewState extends State<HomeView> {
         //box.write('save', encodeData);
         //box.save();
         //setState(() {});
-
         bool? checkValidation = checkSameNo(
             index: filterList.index,
             value: data.first.replaceAll("[", '').toString());
         for (var value1 in this.filterList) {
           if (value1.index == filterList.index) {
             value1.text = checkValidation != null && !checkValidation
-                ? data.first.replaceAll("[", '')
+                ? data[0].replaceAll("[", '')
                 : filterList.text;
 
             value1.otpSwitch =
-                data.last.toString().contains('true') ? true : false;
+                data[3].toString().contains('true') ? true : false;
             value1.filterName = data[1].toString();
+            value1.countryCode = data[2].toString();
           }
         }
         if (checkValidation != null && checkValidation) {
           showBottomLongToast("Mobile number already exist");
         }
         _update(
+            countryCode: data[2].toString(),
             otpSwitch: data.last.toString().contains('true') ? true : false,
             filterName: data[1].toString(),
             smsSwitch: filterList.smsSwitch,
@@ -688,10 +623,62 @@ class _HomeViewState extends State<HomeView> {
         // box.save();
         // setState(() {});
         await initPlatformState();
-
-        //await permissionFuc(filterList: this.filterList);
-
       }
     });
+  }
+
+  Future<void> noPermission() async {
+    if (status == PermissionStatus.granted &&
+        status1 == PermissionStatus.granted) {
+      permissionsGranted = true;
+      phoneAccess = true;
+      setState(() {});
+      redirectToFilterScreen();
+    }
+    if (status == PermissionStatus.denied ||
+        status1 == PermissionStatus.denied) {
+      status = await Permission.sms.request();
+      status1 = await Permission.phone.request();
+
+      if (status!.isDenied || status1!.isDenied) {
+        permissionsGranted = false;
+        phoneAccess = false;
+        await openAppSettings();
+
+        if (status!.isGranted && status1!.isGranted) {
+          permissionsGranted = true;
+          phoneAccess = true;
+          setState(() {});
+          redirectToFilterScreen();
+        }
+        if (status!.isPermanentlyDenied || status1!.isPermanentlyDenied) {
+          await openAppSettings();
+          if (status == PermissionStatus.granted &&
+              status1 == PermissionStatus.granted) {
+            permissionsGranted = true;
+            phoneAccess = true;
+            redirectToFilterScreen();
+          } else {
+            permissionsGranted = false;
+            phoneAccess = false;
+          }
+          setState(() {});
+        }
+      }
+      if (status == PermissionStatus.permanentlyDenied ||
+          status1 == PermissionStatus.permanentlyDenied) {
+        await openAppSettings();
+        if (status == PermissionStatus.granted &&
+            status1 == PermissionStatus.granted) {
+          permissionsGranted = true;
+          phoneAccess = true;
+          redirectToFilterScreen();
+        } else {
+          permissionsGranted = false;
+          phoneAccess = false;
+        }
+        setState(() {});
+      }
+    }
   }
 }

@@ -16,6 +16,7 @@ class DatabaseHelper {
   static const dateTime = 'dateTime';
   static const senderNo = 'senderNo';
 
+  static const countryCode = 'countryCode';
   static const smsId = 'smsId';
   static const text = 'text';
   static const switchOn = 'switchOn';
@@ -46,7 +47,8 @@ class DatabaseHelper {
     $text TEXT NOT NULL,
     $filterName TEXT NOT NULL,
     $switchOn INTEGER NOT NULL,
-    $otpSwitch INTEGER NOT NULL
+    $otpSwitch INTEGER NOT NULL,
+    $countryCode TEXT NOT NULL
     )''');
 
     await db.execute('''
@@ -67,6 +69,7 @@ class DatabaseHelper {
       'filterName': shoppingModel.filterName,
       'switchOn': shoppingModel.switchOn,
       'otpSwitch': shoppingModel.otpSwitch,
+      'countryCode': shoppingModel.countryCode,
     });
   }
 

@@ -12,7 +12,7 @@ customTextField(
     double? maxWidth,
     List<TextInputFormatter>? inputFormatters,
     TextInputType? keyboardType,
-    String? prefixIcon,
+    Widget? countryPrefix,
     required TextEditingController controller}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,14 +40,17 @@ customTextField(
           textAlignVertical: TextAlignVertical.top,
           decoration: InputDecoration(
             prefixIconConstraints:
-                BoxConstraints(maxWidth: maxWidth ?? 43, maxHeight: 30),
+                BoxConstraints(maxWidth: maxWidth ?? 43, maxHeight: 42),
             suffixIconConstraints:
-                const BoxConstraints(maxWidth: 45, maxHeight: 30),
-            prefixIcon: prefixIcon != null
-                ? Container(
+                const BoxConstraints(maxWidth: 45, maxHeight: 45),
+            prefixIcon: countryPrefix == null
+                ?
+                /*      ? Container(
                     margin: const EdgeInsets.only(left: 15, right: 10),
                     child: Image.asset(prefixIcon))
-                : const SizedBox(width: 15),
+                :*/
+                const SizedBox(width: 15)
+                : countryPrefix,
             suffixIcon: suffixIcon != null
                 ? Container(
                     margin: const EdgeInsets.only(right: 15, left: 10),
